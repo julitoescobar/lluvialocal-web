@@ -1009,7 +1009,18 @@ html { scroll-behavior: smooth; }
 .alert-bar.active { border-color: color-mix(in oklab, var(--gold) 50%, transparent); }
 .alert-bar.active .ic { background: color-mix(in oklab, var(--gold) 22%, var(--bg-elev-2)); color: var(--gold); }
 .chart-note { font-size: 12px; color: var(--fg-muted); margin-top: 8px; }
-.cloud-field { position: absolute; inset: -25%; transition: transform 1.2s ease, opacity 1.2s ease; z-index: 1; }
+[hidden] { display: none !important; }
+.radar-head .loc-sub { text-shadow: 0 1px 3px #000; }
+.sat-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; background: #06080E; }
+.sat-overlay { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.sat-status { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; font-size: 13px; color: var(--fg-muted); z-index: 2; }
+.radar-head { background: linear-gradient(180deg, rgba(0,0,0,0.65), transparent); padding-bottom: 18px; top: 0 !important; left: 0 !important; right: 0 !important; padding: 16px 20px 22px; border-radius: 16px 16px 0 0; }
+.sat-time { font-family: var(--font-mono); color: var(--fg) !important; text-shadow: 0 1px 3px #000; }
+.sat-toggle { display: inline-flex; gap: 4px; margin-top: 8px; background: rgba(0,0,0,0.55); border: 1px solid var(--rule); border-radius: 8px; padding: 3px; }
+.sat-toggle button { font: 500 11.5px var(--font-body); color: var(--fg-dim); background: transparent; border: 0; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.sat-toggle button.active { background: var(--gold); color: #000; }
+.sat-toggle button:focus-visible, .rt-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.rt-bar { cursor: pointer; height: 6px !important; }
 .alert-list { margin-top: 6px; font-size: 12px; color: var(--fg-muted); }
 .foot a { color: var(--gold); text-decoration: none; }
 </style>
@@ -1022,7 +1033,7 @@ html { scroll-behavior: smooth; }
     <a class="sb-item active" href="#resumen" title="Resumen" data-anchor="resumen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
     </a>
-    <a class="sb-item" href="#radar" title="Radar" data-anchor="radar">
+    <a class="sb-item" href="#radar" title="Satélite" data-anchor="radar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="12" x2="12" y2="2"/><path d="M12 12L4.93 4.93"/></svg>
     </a>
     <a class="sb-item" href="#pronostico" title="Pronóstico" data-anchor="pronostico">
@@ -1069,32 +1080,25 @@ html { scroll-behavior: smooth; }
       <div class="card radar" id="radar">
         <div class="radar-head">
           <div class="info-anchor" style="pointer-events: auto;">
-            <div class="loc-sub" style="color: var(--fg-muted);"><span class="dot-gold" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:middle;"></span>Vista ilustrativa<button class="info-btn" data-info="radar">i</button></div>
+            <div class="loc-sub" style="color: var(--fg-dim);"><span class="dot-gold" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:middle;"></span>Satélite GOES-East<button class="info-btn" data-info="radar">i</button></div>
+            <div class="sat-toggle" role="group" aria-label="Tipo de imagen">
+              <button type="button" class="active" data-layer="geocolor">Color real</button>
+              <button type="button" data-layer="ir">Tormentas</button>
+            </div>
           </div>
-          <div class="loc-sub" style="font-family: var(--font-mono);">60 km</div>
+          <div class="loc-sub sat-time" id="satTime"></div>
         </div>
         <div class="radar-viz">
-          <svg class="radar-map" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; width:100%; height:100%; opacity:0.35; z-index:0; pointer-events:none;">
-            <path d="M 60 130 Q 50 80 120 70 Q 210 55 300 95 Q 360 130 345 210 Q 320 300 220 320 Q 120 335 70 270 Q 40 200 60 130 Z" fill="rgba(74, 156, 232, 0.25)" stroke="rgba(123, 184, 237, 0.6)" stroke-width="1"/>
-            <g font-family="Inter, sans-serif" font-size="8" fill="rgba(227, 179, 65, 0.8)">
-              <circle cx="200" cy="200" r="2.5" fill="rgba(227, 179, 65, 1)"/>
-              <circle cx="215" cy="265" r="1.5" fill="rgba(242, 238, 226, 0.8)"/><text x="222" y="268">Balnearia</text>
-              <circle cx="170" cy="270" r="1.5" fill="rgba(242, 238, 226, 0.8)"/><text x="118" y="273" text-anchor="end">Marull</text>
-              <circle cx="300" cy="210" r="1.5" fill="rgba(242, 238, 226, 0.8)"/><text x="306" y="213">Chipión</text>
-            </g>
-          </svg>
-          <div class="radar-grid"></div>
-          <div class="cloud-field" id="cloudField">
-            <div class="cloud a"></div><div class="cloud b"></div><div class="cloud c"></div><div class="cloud d"></div>
-          </div>
-          <div class="radar-scan"></div>
+          <img class="sat-img" id="satImg" alt="Imagen satelital de la zona de Mar Chiquita">
+          <svg class="sat-overlay" id="satOverlay" viewBox="0 0 640 640" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="sat-status" id="satStatus">Cargando imágenes del satélite…</div>
           <div class="radar-pin"><div class="ring"><div class="dot"></div></div><div class="lbl">Miramar</div></div>
           <div class="radar-timeline">
             <button class="rt-play" id="rtPlay" aria-label="Pausar animación">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
             </button>
             <div class="rt-track">
-              <div class="rt-bar"><div class="rt-fill" id="rtFill"></div></div>
+              <div class="rt-bar" id="rtBar"><div class="rt-fill" id="rtFill"></div></div>
               <div class="rt-ticks" id="rtTicks"></div>
             </div>
           </div>
@@ -1193,7 +1197,7 @@ html { scroll-behavior: smooth; }
   </div>
 </div>
 
-<script>window.LLUVIA = {"generated_at": "2026-11-23T12:26:13Z", "generated_local": "lun 23 nov · 09:26", "location": {"name": "Miramar de Ansenuza", "code": "mir"}, "now": {"precip_mm": 0.1, "raining": true, "wind_kmh": 13, "gust_kmh": 26, "wind_dir_deg": 91, "wind_from": "E"}, "next12": {"total_mm": 13.0, "prob": 100, "spread": [4.1, 15.4, 15.6]}, "headline": {"title": "Está lloviendo", "sub": "Sigue hasta las 21 h aprox. Desde ahora caerían 13,0 mm más."}, "days": [{"code": "hoy", "label": "Hoy", "date": "23 nov", "mm": 15.0, "prob": 95, "gust": 44, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 11 h", "partial": true}, {"code": "d+1", "label": "Martes", "date": "24 nov", "mm": 10.2, "prob": 83, "gust": 45, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 06 h", "partial": false}, {"code": "d+2", "label": "Miércoles", "date": "25 nov", "mm": 0.0, "prob": 1, "gust": 33, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}, {"code": "d+3", "label": "Jueves", "date": "26 nov", "mm": 0.0, "prob": 16, "gust": 55, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}], "hourly": [{"hour": "09", "mm": 0.42, "prob": 69}, {"hour": "10", "mm": 1.06, "prob": 79}, {"hour": "11", "mm": 1.92, "prob": 88}, {"hour": "12", "mm": 1.39, "prob": 93}, {"hour": "13", "mm": 1.46, "prob": 93}, {"hour": "14", "mm": 1.09, "prob": 89}, {"hour": "15", "mm": 1.06, "prob": 85}, {"hour": "16", "mm": 1.29, "prob": 82}, {"hour": "17", "mm": 1.27, "prob": 74}, {"hour": "18", "mm": 1.04, "prob": 67}, {"hour": "19", "mm": 0.55, "prob": 64}, {"hour": "20", "mm": 0.46, "prob": 61}, {"hour": "21", "mm": 0.49, "prob": 59}, {"hour": "22", "mm": 0.74, "prob": 58}, {"hour": "23", "mm": 0.74, "prob": 60}, {"hour": "00", "mm": 0.79, "prob": 63}, {"hour": "01", "mm": 0.48, "prob": 66}, {"hour": "02", "mm": 0.34, "prob": 73}, {"hour": "03", "mm": 1.0, "prob": 79}, {"hour": "04", "mm": 1.13, "prob": 82}, {"hour": "05", "mm": 2.76, "prob": 82}, {"hour": "06", "mm": 3.34, "prob": 78}, {"hour": "07", "mm": 0.1, "prob": 67}, {"hour": "08", "mm": 0.2, "prob": 51}], "neighbors": [{"name": "Balnearia", "code": "bal", "distance_km": 10.9, "direction": "S", "wind_kmh": 7, "wind_dir_deg": 86, "wind_from": "E", "precip_mm": 0.1, "eta_min": null}, {"name": "Marull", "code": "mar", "distance_km": 16.8, "direction": "OSO", "wind_kmh": 10, "wind_dir_deg": 101, "wind_from": "E", "precip_mm": 0.1, "eta_min": null}, {"name": "Altos de Chipión", "code": "chp", "distance_km": 32.4, "direction": "E", "wind_kmh": 8, "wind_dir_deg": 69, "wind_from": "ENE", "precip_mm": 0.2, "eta_min": 146}], "weights": [{"model": "ECMWF", "pct": 43.4, "mae": 2.91}, {"model": "ICON", "pct": 34.5, "mae": 3.79}, {"model": "GFS", "pct": 22.1, "mae": 6.22}], "alerts": {"recent": [{"time": "09:07", "title": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.", "body": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.\nDesde ahora caerían 13,0 mm más. Según el modelo, entre 4,1 y 15,6 mm.\nLo más intenso de 11 h a 14 h: cae de forma débil (hasta 1,9 mm en una hora).\nEn total, cantidad moderada: calles mojadas y charcos.\n\nHora a hora (mm):\n09 h  ▂ 0,4\n10 h  ▄ 1,1\n11 h  █ 1,9\n12 h  ▆ 1,4\n13 h  ▆ 1,5\n14 h  ▄ 1,1\n15 h  ▄ 1,1\n16 h  ▅ 1,3\n17 h  ▅ 1,3\n18 h  ▄ 1,0\n19 h  ▃ 0,5\n20 h  ▂ 0,5\n\nProbabilidad de lluvia: 100 %"}, {"time": "09:00", "title": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h", "body": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h\nProb. máx: 100%. Según ecmwf 6.5, gfs 2.9, icon 11.2."}], "event_open": true}, "pipeline": {"last_run_local": "09:26", "ok_24h": 104, "total_24h": 104}, "track": {"days_running": 1, "alerts_sent": 2, "best_model": "ECMWF", "best_mae": 2.91}};</script>
+<script>window.LLUVIA = {"generated_at": "2026-11-23T13:31:10Z", "generated_local": "lun 23 nov · 10:31", "location": {"name": "Miramar de Ansenuza", "code": "mir"}, "now": {"precip_mm": 0.1, "raining": true, "wind_kmh": 11, "gust_kmh": 25, "wind_dir_deg": 51, "wind_from": "NE"}, "next12": {"total_mm": 15.3, "prob": 100, "spread": [4.2, 14.8, 21.3]}, "headline": {"title": "Está lloviendo", "sub": "Sigue hasta las 22 h aprox. Desde ahora caerían 15,3 mm más."}, "days": [{"code": "hoy", "label": "Hoy", "date": "23 nov", "mm": 15.3, "prob": 95, "gust": 44, "cond": "Lluvia abundante", "state": "rain", "status": "Lluvia · pico 13 h", "partial": true}, {"code": "d+1", "label": "Martes", "date": "24 nov", "mm": 9.5, "prob": 83, "gust": 42, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 06 h", "partial": false}, {"code": "d+2", "label": "Miércoles", "date": "25 nov", "mm": 0.0, "prob": 1, "gust": 37, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}, {"code": "d+3", "label": "Jueves", "date": "26 nov", "mm": 0.3, "prob": 16, "gust": 47, "cond": "Lluvia posible", "state": "maybe", "status": "Posible", "partial": false}], "hourly": [{"hour": "10", "mm": 0.62, "prob": 79}, {"hour": "11", "mm": 1.48, "prob": 88}, {"hour": "12", "mm": 0.96, "prob": 93}, {"hour": "13", "mm": 2.02, "prob": 93}, {"hour": "14", "mm": 1.65, "prob": 89}, {"hour": "15", "mm": 1.63, "prob": 85}, {"hour": "16", "mm": 1.94, "prob": 82}, {"hour": "17", "mm": 1.92, "prob": 74}, {"hour": "18", "mm": 1.69, "prob": 67}, {"hour": "19", "mm": 0.5, "prob": 64}, {"hour": "20", "mm": 0.41, "prob": 61}, {"hour": "21", "mm": 0.45, "prob": 59}, {"hour": "22", "mm": 0.0, "prob": 58}, {"hour": "23", "mm": 0.0, "prob": 60}, {"hour": "00", "mm": 0.06, "prob": 63}, {"hour": "01", "mm": 0.48, "prob": 66}, {"hour": "02", "mm": 0.34, "prob": 73}, {"hour": "03", "mm": 1.0, "prob": 79}, {"hour": "04", "mm": 1.13, "prob": 82}, {"hour": "05", "mm": 2.76, "prob": 82}, {"hour": "06", "mm": 3.34, "prob": 78}, {"hour": "07", "mm": 0.1, "prob": 67}, {"hour": "08", "mm": 0.2, "prob": 51}, {"hour": "09", "mm": 0.07, "prob": 39}], "neighbors": [{"name": "Balnearia", "code": "bal", "distance_km": 10.9, "direction": "S", "wind_kmh": 4, "wind_dir_deg": 24, "wind_from": "NNE", "precip_mm": 0, "eta_min": null}, {"name": "Marull", "code": "mar", "distance_km": 16.8, "direction": "OSO", "wind_kmh": 6, "wind_dir_deg": 49, "wind_from": "NE", "precip_mm": 0.1, "eta_min": null}, {"name": "Altos de Chipión", "code": "chp", "distance_km": 32.4, "direction": "E", "wind_kmh": 12, "wind_dir_deg": 32, "wind_from": "NNE", "precip_mm": 0, "eta_min": null}], "weights": [{"model": "ECMWF", "pct": 43.4, "mae": 2.91}, {"model": "ICON", "pct": 34.5, "mae": 3.79}, {"model": "GFS", "pct": 22.1, "mae": 6.22}], "alerts": {"recent": [{"time": "09:07", "title": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.", "body": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.\nDesde ahora caerían 13,0 mm más. Según el modelo, entre 4,1 y 15,6 mm.\nLo más intenso de 11 h a 14 h: cae de forma débil (hasta 1,9 mm en una hora).\nEn total, cantidad moderada: calles mojadas y charcos.\n\nHora a hora (mm):\n09 h  ▂ 0,4\n10 h  ▄ 1,1\n11 h  █ 1,9\n12 h  ▆ 1,4\n13 h  ▆ 1,5\n14 h  ▄ 1,1\n15 h  ▄ 1,1\n16 h  ▅ 1,3\n17 h  ▅ 1,3\n18 h  ▄ 1,0\n19 h  ▃ 0,5\n20 h  ▂ 0,5\n\nProbabilidad de lluvia: 100 %"}, {"time": "09:00", "title": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h", "body": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h\nProb. máx: 100%. Según ecmwf 6.5, gfs 2.9, icon 11.2."}], "event_open": true}, "pipeline": {"last_run_local": "10:31", "ok_24h": 124, "total_24h": 124}, "track": {"days_running": 1, "alerts_sent": 2, "best_model": "ECMWF", "best_mae": 2.91}};</script>
 <script>
 (function () {
   const D = window.LLUVIA;
@@ -1309,11 +1313,6 @@ html { scroll-behavior: smooth; }
     tile('Canales', 'Activos', 'Telegram automático', 'ok');
   $('footUpdated').innerHTML = `<span style="font-family: var(--font-airport); text-transform: lowercase; letter-spacing: 0.08em;">lluvialocal · ${esc(D.location.code)}</span> · actualizado ${esc(D.generated_local)}`;
 
-  // Vista ilustrativa: las nubes se mueven hacia donde sopla el viento
-  const field = $('cloudField');
-  field.style.transform = `rotate(${(D.now.wind_dir_deg ?? 90) + 90}deg)`;
-  field.style.opacity = D.now.raining ? 0.9 : (D.next12.total_mm >= 1 ? 0.55 : 0.15);
-  $('rtTicks').innerHTML = '<span>ahora</span><span>+15</span><span>+30</span><span>+45</span><span>+1 h</span>';
 })();
 
 // Popovers de información
@@ -1323,7 +1322,7 @@ html { scroll-behavior: smooth; }
     nowcast: ['Pueblos vecinos', 'Muestra cuánto está lloviendo <strong>ahora</strong> en Balnearia, Marull y Altos de Chipión, y de dónde sopla el viento. Si el viento trae la lluvia de un pueblo vecino hacia Miramar, aparece cuánto tardaría en llegar.'],
     pronostico: ['Cómo leer el pronóstico', '<code>mm</code> son los milímetros esperados en el día; <code>prob</code> es la probabilidad de que llueva. "Hoy" cuenta solo desde ahora. El estado indica a qué hora pega más fuerte. 5 mm deja calles mojadas; 15 mm o más ya es abundante.'],
     hourly: ['Hora a hora', 'Las barras azules son la probabilidad de lluvia en cada hora; la línea dorada, cuántos milímetros se esperan. Menos de 2,5 mm en una hora es débil, de 2,5 a 7,5 es moderada y más es fuerte.'],
-    radar: ['Vista ilustrativa', 'Esto <strong>no es un radar real</strong>. Las nubes se mueven hacia donde sopla el viento en Miramar y se ven más densas cuando llueve o se espera lluvia. El radar real es un próximo paso.'],
+    radar: ['Satélite GOES-East', 'Imágenes reales del satélite GOES-East (NOAA), servidas por NASA. Llega una cada 10 minutos, con unos 40 a 60 minutos de atraso, y el loop muestra las últimas 2 horas, unos 550 km alrededor de Miramar.<br><br><strong>Color real</strong>: como se ve desde el espacio; de noche pasa a infrarrojo. <strong>Tormentas</strong>: infrarrojo, donde el verde, el azul y el amarillo marcan nubes muy altas y frías, las que suelen dar tormentas.<br><br>Ojo: el satélite muestra <strong>nubes, no lluvia</strong>. Una nube blanca puede no llover.'],
     track: ['Track record', 'La promesa es <strong>si digo que llueve, llueve</strong>, y por eso publicamos qué tan bien acertamos. El porcentaje de acierto se muestra recién con 30 días de datos, para no presumir con pocos casos.']
   };
   let current = null;
@@ -1346,20 +1345,101 @@ html { scroll-behavior: smooth; }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 })();
 
-// Animación de la vista ilustrativa
+// Loop satelital GOES-East (NASA GIBS). Miramar queda en el centro exacto del encuadre.
 (function () {
-  const play = document.getElementById('rtPlay'), fill = document.getElementById('rtFill');
-  const clouds = document.querySelectorAll('.cloud');
-  let playing = true, progress = 0;
-  play.addEventListener('click', () => {
-    playing = !playing;
-    clouds.forEach((c) => { c.style.animationPlayState = playing ? 'running' : 'paused'; });
+  const $ = (id) => document.getElementById(id);
+  const LAYERS = { geocolor: 'GOES-East_ABI_GeoColor', ir: 'GOES-East_ABI_Band13_Clean_Infrared' };
+  const BBOX = [-65.575, -33.415, -59.775, -28.415];  // lon/lat: ~550 km por lado, centro Miramar
+  const SIZE = 640, STEP = 10 * 60 * 1000, LOOKBACK = 18, KEEP = 12;
+  const MIN_BYTES = 8000;  // GIBS responde 200 con una imagen vacía (~2 KB) si el horario no llegó aún
+  const PLACES = [['Córdoba', -31.4201, -64.1888], ['San Francisco', -31.4278, -62.0828], ['Santa Fe', -31.6333, -60.7]];
+  const img = $('satImg'), status = $('satStatus'), timeLbl = $('satTime'), fill = $('rtFill'), play = $('rtPlay');
+  let frames = [], idx = 0, playing = true, timer = null, hold = 0, token = 0;
+
+  const px = (lat, lon) => [(lon - BBOX[0]) / (BBOX[2] - BBOX[0]) * SIZE, (BBOX[3] - lat) / (BBOX[3] - BBOX[1]) * SIZE];
+  $('satOverlay').innerHTML = PLACES.map(([n, lat, lon]) => {
+    const [x, y] = px(lat, lon);
+    return `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="3.5" fill="#F2EEE2" stroke="#000" stroke-width="1"/>` +
+      `<text x="${(x + 7).toFixed(0)}" y="${(y + 4).toFixed(0)}" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#F2EEE2" stroke="#000" stroke-width="3" paint-order="stroke">${n}</text>`;
+  }).join('');
+
+  const url = (layer, t) => 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1' +
+    `&SRS=EPSG:4326&BBOX=${BBOX.join(',')}&WIDTH=${SIZE}&HEIGHT=${SIZE}&STYLES=&FORMAT=image/jpeg&LAYERS=${layer}` +
+    `&TIME=${t.toISOString().slice(0, 19)}Z`;
+  const hhmm = (t) => `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+
+  function show() {
+    const f = frames[idx];
+    img.src = f.src;
+    const ago = Math.round((Date.now() - f.t) / 60000);
+    const agoTxt = ago < 60 ? `${ago} min` : `${Math.floor(ago / 60)} h${ago % 60 ? ` ${ago % 60} min` : ''}`;
+    timeLbl.textContent = `${hhmm(f.t)} · hace ${agoTxt}`;
+    fill.style.width = `${((idx + 1) / frames.length) * 100}%`;
+  }
+  function stepFrame() {
+    if (!frames.length) return;
+    if (idx === frames.length - 1 && hold < 3) { hold++; return; }  // pausa breve en el cuadro más nuevo
+    hold = 0;
+    idx = (idx + 1) % frames.length;
+    show();
+  }
+  function setPlaying(p) {
+    playing = p;
+    clearInterval(timer);
+    if (playing) timer = setInterval(stepFrame, 450);
     play.setAttribute('aria-label', playing ? 'Pausar animación' : 'Reanudar animación');
     play.innerHTML = playing
       ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  }
+
+  async function load(key) {
+    const my = ++token;
+    clearInterval(timer);
+    status.hidden = false;
+    status.textContent = 'Cargando imágenes del satélite…';
+    const last = Math.floor(Date.now() / STEP) * STEP;
+    const times = Array.from({ length: LOOKBACK }, (_, i) => new Date(last - i * STEP));
+    const got = await Promise.all(times.map(async (t) => {
+      try {
+        const r = await fetch(url(LAYERS[key], t));
+        if (!r.ok) return null;
+        const b = await r.blob();
+        return b.size >= MIN_BYTES ? { t, src: URL.createObjectURL(b) } : null;
+      } catch { return null; }
+    }));
+    const ok = got.filter(Boolean);
+    if (my !== token) { ok.forEach((f) => URL.revokeObjectURL(f.src)); return; }
+    ok.slice(KEEP).forEach((f) => URL.revokeObjectURL(f.src));
+    frames.forEach((f) => URL.revokeObjectURL(f.src));
+    frames = ok.slice(0, KEEP).reverse();
+    if (!frames.length) {
+      status.textContent = 'No se pudieron cargar las imágenes del satélite. Probá de nuevo en unos minutos.';
+      timeLbl.textContent = '';
+      return;
+    }
+    status.hidden = true;
+    $('rtTicks').innerHTML = `<span>${hhmm(frames[0].t)}</span><span>${hhmm(frames[frames.length - 1].t)}</span>`;
+    idx = frames.length - 1;
+    hold = 0;
+    show();
+    setPlaying(playing);
+  }
+
+  play.addEventListener('click', () => setPlaying(!playing));
+  $('rtBar').addEventListener('click', (e) => {
+    if (!frames.length) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    idx = Math.min(frames.length - 1, Math.max(0, Math.floor((e.clientX - r.left) / r.width * frames.length)));
+    setPlaying(false);
+    show();
   });
-  setInterval(() => { if (playing) { progress = (progress + 0.6) % 101; fill.style.width = progress + '%'; } }, 100);
+  document.querySelectorAll('.sat-toggle button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.sat-toggle button').forEach((x) => x.classList.toggle('active', x === b));
+    load(b.dataset.layer);
+  }));
+  load('geocolor');
+  setInterval(() => load(document.querySelector('.sat-toggle .active').dataset.layer), 10 * 60 * 1000);
 })();
 
 // Sidebar: marca la sección en vista

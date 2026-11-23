@@ -1020,7 +1020,12 @@ html { scroll-behavior: smooth; }
 .sat-toggle button { font: 500 11.5px var(--font-body); color: var(--fg-dim); background: transparent; border: 0; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
 .sat-toggle button.active { background: var(--gold); color: #000; }
 .sat-toggle button:focus-visible, .rt-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.rt-bar { cursor: pointer; height: 6px !important; }
+.rt-bar { cursor: pointer; height: 6px !important; position: relative; }
+.rt-proj { position: absolute; right: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(45deg, rgba(232,106,74,0.95) 0 3px, transparent 3px 6px); }
+.sat-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sat-controls .sat-toggle { margin-top: 0; }
+.sat-proj { position: absolute; top: 96px; right: 16px; z-index: 3; font: 600 10px var(--font-mono); letter-spacing: 0.14em; color: #000; background: var(--accent-warm); padding: 4px 8px; border-radius: 4px; cursor: help; }
+.radar-viz.projected::after { content: ''; position: absolute; inset: 6px; border: 2px dashed var(--accent-warm); border-radius: 12px; z-index: 2; pointer-events: none; }
 .alert-list { margin-top: 6px; font-size: 12px; color: var(--fg-muted); }
 .foot a { color: var(--gold); text-decoration: none; }
 </style>
@@ -1081,9 +1086,15 @@ html { scroll-behavior: smooth; }
         <div class="radar-head">
           <div class="info-anchor" style="pointer-events: auto;">
             <div class="loc-sub" style="color: var(--fg-dim);"><span class="dot-gold" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:middle;"></span>Satélite GOES-East<button class="info-btn" data-info="radar">i</button></div>
-            <div class="sat-toggle" role="group" aria-label="Tipo de imagen">
-              <button type="button" class="active" data-layer="geocolor">Color real</button>
-              <button type="button" data-layer="ir">Tormentas</button>
+            <div class="sat-controls">
+              <div class="sat-toggle" id="satLayer" role="group" aria-label="Tipo de imagen">
+                <button type="button" class="active" data-layer="geocolor">Color real</button>
+                <button type="button" data-layer="ir">Tormentas</button>
+              </div>
+              <div class="sat-toggle" id="satZoom" role="group" aria-label="Zoom">
+                <button type="button" class="active" data-zoom="zona">Zona</button>
+                <button type="button" data-zoom="region">Región</button>
+              </div>
             </div>
           </div>
           <div class="loc-sub sat-time" id="satTime"></div>
@@ -1092,13 +1103,14 @@ html { scroll-behavior: smooth; }
           <img class="sat-img" id="satImg" alt="Imagen satelital de la zona de Mar Chiquita">
           <svg class="sat-overlay" id="satOverlay" viewBox="0 0 640 640" preserveAspectRatio="none" aria-hidden="true"></svg>
           <div class="sat-status" id="satStatus">Cargando imágenes del satélite…</div>
+          <div class="sat-proj" id="satProj" hidden>PROYECCIÓN</div>
           <div class="radar-pin"><div class="ring"><div class="dot"></div></div><div class="lbl">Miramar</div></div>
           <div class="radar-timeline">
             <button class="rt-play" id="rtPlay" aria-label="Pausar animación">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
             </button>
             <div class="rt-track">
-              <div class="rt-bar" id="rtBar"><div class="rt-fill" id="rtFill"></div></div>
+              <div class="rt-bar" id="rtBar"><div class="rt-fill" id="rtFill"></div><div class="rt-proj" id="rtProj"></div></div>
               <div class="rt-ticks" id="rtTicks"></div>
             </div>
           </div>
@@ -1197,7 +1209,7 @@ html { scroll-behavior: smooth; }
   </div>
 </div>
 
-<script>window.LLUVIA = {"generated_at": "2026-11-23T15:21:13Z", "generated_local": "lun 23 nov · 12:21", "location": {"name": "Miramar de Ansenuza", "code": "mir"}, "now": {"precip_mm": 0.9, "raining": false, "wind_kmh": 14, "gust_kmh": 30, "wind_dir_deg": 34, "wind_from": "NE"}, "next12": {"total_mm": 13.2, "prob": 100, "spread": [3.2, 10.1, 20.7]}, "headline": {"title": "No está lloviendo", "sub": "Reporte desde Miramar a las 12:15: paró de llover. Los modelos pueden seguir marcando lluvia; si vuelve, avisamos."}, "ground": {"at": "2026-11-23T15:15:00Z", "kind": "dry", "text": "No llueve"}, "days": [{"code": "hoy", "label": "Hoy", "date": "23 nov", "mm": 13.2, "prob": 95, "gust": 44, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 13 h", "partial": true}, {"code": "d+1", "label": "Martes", "date": "24 nov", "mm": 9.5, "prob": 83, "gust": 42, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 06 h", "partial": false}, {"code": "d+2", "label": "Miércoles", "date": "25 nov", "mm": 0.0, "prob": 1, "gust": 37, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}, {"code": "d+3", "label": "Jueves", "date": "26 nov", "mm": 0.3, "prob": 16, "gust": 47, "cond": "Lluvia posible", "state": "maybe", "status": "Posible", "partial": false}], "hourly": [{"hour": "12", "mm": 0.96, "prob": 93}, {"hour": "13", "mm": 2.02, "prob": 93}, {"hour": "14", "mm": 1.65, "prob": 89}, {"hour": "15", "mm": 1.63, "prob": 85}, {"hour": "16", "mm": 1.94, "prob": 82}, {"hour": "17", "mm": 1.92, "prob": 74}, {"hour": "18", "mm": 1.69, "prob": 67}, {"hour": "19", "mm": 0.5, "prob": 64}, {"hour": "20", "mm": 0.41, "prob": 61}, {"hour": "21", "mm": 0.45, "prob": 59}, {"hour": "22", "mm": 0.0, "prob": 58}, {"hour": "23", "mm": 0.0, "prob": 60}, {"hour": "00", "mm": 0.06, "prob": 63}, {"hour": "01", "mm": 0.48, "prob": 66}, {"hour": "02", "mm": 0.34, "prob": 73}, {"hour": "03", "mm": 1.0, "prob": 79}, {"hour": "04", "mm": 1.13, "prob": 82}, {"hour": "05", "mm": 2.76, "prob": 82}, {"hour": "06", "mm": 3.34, "prob": 78}, {"hour": "07", "mm": 0.1, "prob": 67}, {"hour": "08", "mm": 0.2, "prob": 51}, {"hour": "09", "mm": 0.07, "prob": 39}, {"hour": "10", "mm": 0.0, "prob": 27}, {"hour": "11", "mm": 0.0, "prob": 16}], "neighbors": [{"name": "Balnearia", "code": "bal", "distance_km": 10.9, "direction": "S", "wind_kmh": 14, "wind_dir_deg": 25, "wind_from": "NNE", "precip_mm": 0.2, "eta_min": null}, {"name": "Marull", "code": "mar", "distance_km": 16.8, "direction": "OSO", "wind_kmh": 15, "wind_dir_deg": 24, "wind_from": "NNE", "precip_mm": 0.6, "eta_min": null}, {"name": "Altos de Chipión", "code": "chp", "distance_km": 32.4, "direction": "E", "wind_kmh": 13, "wind_dir_deg": 34, "wind_from": "NE", "precip_mm": 0.1, "eta_min": null}], "weights": [{"model": "ECMWF", "pct": 43.4, "mae": 2.91}, {"model": "ICON", "pct": 34.5, "mae": 3.79}, {"model": "GFS", "pct": 22.1, "mae": 6.22}], "alerts": {"recent": [{"time": "12:21", "title": "🌤️ Miramar de Ansenuza: paró de llover", "body": "🌤️ Miramar de Ansenuza: paró de llover\nCorrección: a las 09:07 avisamos 13,0 mm hasta las 22 h.\nEn el pueblo ya no llueve: la lluvia se cortó antes de lo previsto.\nLos modelos todavía marcan 13,2 mm para las próximas horas, pero hoy vienen exagerando. Si vuelve a llover, avisamos."}, {"time": "09:07", "title": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.", "body": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.\nDesde ahora caerían 13,0 mm más. Según el modelo, entre 4,1 y 15,6 mm.\nLo más intenso de 11 h a 14 h: cae de forma débil (hasta 1,9 mm en una hora).\nEn total, cantidad moderada: calles mojadas y charcos.\n\nHora a hora (mm):\n09 h  ▂ 0,4\n10 h  ▄ 1,1\n11 h  █ 1,9\n12 h  ▆ 1,4\n13 h  ▆ 1,5\n14 h  ▄ 1,1\n15 h  ▄ 1,1\n16 h  ▅ 1,3\n17 h  ▅ 1,3\n18 h  ▄ 1,0\n19 h  ▃ 0,5\n20 h  ▂ 0,5\n\nProbabilidad de lluvia: 100 %"}, {"time": "09:00", "title": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h", "body": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h\nProb. máx: 100%. Según ecmwf 6.5, gfs 2.9, icon 11.2."}], "event_open": false}, "pipeline": {"last_run_local": "12:21", "ok_24h": 144, "total_24h": 144}, "track": {"days_running": 1, "alerts_sent": 3, "best_model": "ECMWF", "best_mae": 2.91}};</script>
+<script>window.LLUVIA = {"generated_at": "2026-11-23T15:34:39Z", "generated_local": "lun 23 nov · 12:34", "location": {"name": "Miramar de Ansenuza", "code": "mir"}, "now": {"precip_mm": 0.9, "raining": false, "wind_kmh": 14, "gust_kmh": 30, "wind_dir_deg": 33, "wind_from": "NNE"}, "next12": {"total_mm": 13.2, "prob": 100, "spread": [3.2, 10.1, 20.7]}, "headline": {"title": "No está lloviendo", "sub": "Reporte desde Miramar a las 12:15: paró de llover. Los modelos pueden seguir marcando lluvia; si vuelve, avisamos."}, "ground": {"at": "2026-11-23T15:15:00Z", "kind": "dry", "text": "No llueve"}, "days": [{"code": "hoy", "label": "Hoy", "date": "23 nov", "mm": 13.2, "prob": 96, "gust": 44, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 13 h", "partial": true}, {"code": "d+1", "label": "Martes", "date": "24 nov", "mm": 9.5, "prob": 75, "gust": 42, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 06 h", "partial": false}, {"code": "d+2", "label": "Miércoles", "date": "25 nov", "mm": 0.0, "prob": 0, "gust": 37, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}, {"code": "d+3", "label": "Jueves", "date": "26 nov", "mm": 0.3, "prob": 14, "gust": 47, "cond": "Lluvia posible", "state": "maybe", "status": "Posible", "partial": false}], "hourly": [{"hour": "12", "mm": 0.96, "prob": 96}, {"hour": "13", "mm": 2.02, "prob": 94}, {"hour": "14", "mm": 1.65, "prob": 90}, {"hour": "15", "mm": 1.63, "prob": 86}, {"hour": "16", "mm": 1.94, "prob": 84}, {"hour": "17", "mm": 1.92, "prob": 77}, {"hour": "18", "mm": 1.69, "prob": 70}, {"hour": "19", "mm": 0.5, "prob": 66}, {"hour": "20", "mm": 0.41, "prob": 60}, {"hour": "21", "mm": 0.45, "prob": 56}, {"hour": "22", "mm": 0.0, "prob": 52}, {"hour": "23", "mm": 0.0, "prob": 52}, {"hour": "00", "mm": 0.06, "prob": 52}, {"hour": "01", "mm": 0.48, "prob": 55}, {"hour": "02", "mm": 0.34, "prob": 63}, {"hour": "03", "mm": 1.0, "prob": 71}, {"hour": "04", "mm": 1.13, "prob": 73}, {"hour": "05", "mm": 2.76, "prob": 72}, {"hour": "06", "mm": 3.34, "prob": 67}, {"hour": "07", "mm": 0.1, "prob": 58}, {"hour": "08", "mm": 0.2, "prob": 45}, {"hour": "09", "mm": 0.07, "prob": 36}, {"hour": "10", "mm": 0.0, "prob": 26}, {"hour": "11", "mm": 0.0, "prob": 16}], "neighbors": [{"name": "Balnearia", "code": "bal", "distance_km": 10.9, "direction": "S", "wind_kmh": 15, "wind_dir_deg": 21, "wind_from": "NNE", "precip_mm": 0.2, "eta_min": null}, {"name": "Marull", "code": "mar", "distance_km": 16.8, "direction": "OSO", "wind_kmh": 15, "wind_dir_deg": 26, "wind_from": "NNE", "precip_mm": 0.6, "eta_min": null}, {"name": "Altos de Chipión", "code": "chp", "distance_km": 32.4, "direction": "E", "wind_kmh": 13, "wind_dir_deg": 28, "wind_from": "NNE", "precip_mm": 0.1, "eta_min": null}], "weights": [{"model": "ECMWF", "pct": 43.4, "mae": 2.91}, {"model": "ICON", "pct": 34.5, "mae": 3.79}, {"model": "GFS", "pct": 22.1, "mae": 6.22}], "alerts": {"recent": [{"time": "12:21", "title": "🌤️ Miramar de Ansenuza: paró de llover", "body": "🌤️ Miramar de Ansenuza: paró de llover\nCorrección: a las 09:07 avisamos 13,0 mm hasta las 22 h.\nEn el pueblo ya no llueve: la lluvia se cortó antes de lo previsto.\nLos modelos todavía marcan 13,2 mm para las próximas horas, pero hoy vienen exagerando. Si vuelve a llover, avisamos."}, {"time": "09:07", "title": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.", "body": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.\nDesde ahora caerían 13,0 mm más. Según el modelo, entre 4,1 y 15,6 mm.\nLo más intenso de 11 h a 14 h: cae de forma débil (hasta 1,9 mm en una hora).\nEn total, cantidad moderada: calles mojadas y charcos.\n\nHora a hora (mm):\n09 h  ▂ 0,4\n10 h  ▄ 1,1\n11 h  █ 1,9\n12 h  ▆ 1,4\n13 h  ▆ 1,5\n14 h  ▄ 1,1\n15 h  ▄ 1,1\n16 h  ▅ 1,3\n17 h  ▅ 1,3\n18 h  ▄ 1,0\n19 h  ▃ 0,5\n20 h  ▂ 0,5\n\nProbabilidad de lluvia: 100 %"}, {"time": "09:00", "title": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h", "body": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h\nProb. máx: 100%. Según ecmwf 6.5, gfs 2.9, icon 11.2."}], "event_open": false}, "pipeline": {"last_run_local": "12:34", "ok_24h": 164, "total_24h": 164}, "track": {"days_running": 1, "alerts_sent": 3, "best_model": "ECMWF", "best_mae": 2.91}};</script>
 <script>
 (function () {
   const D = window.LLUVIA;
@@ -1322,7 +1334,7 @@ html { scroll-behavior: smooth; }
     nowcast: ['Pueblos vecinos', 'Muestra cuánto está lloviendo <strong>ahora</strong> en Balnearia, Marull y Altos de Chipión, y de dónde sopla el viento. Si el viento trae la lluvia de un pueblo vecino hacia Miramar, aparece cuánto tardaría en llegar.'],
     pronostico: ['Cómo leer el pronóstico', '<code>mm</code> son los milímetros esperados en el día; <code>prob</code> es la probabilidad de que llueva. "Hoy" cuenta solo desde ahora. El estado indica a qué hora pega más fuerte. 5 mm deja calles mojadas; 15 mm o más ya es abundante.'],
     hourly: ['Hora a hora', 'Las barras azules son la probabilidad de lluvia en cada hora; la línea dorada, cuántos milímetros se esperan. Menos de 2,5 mm en una hora es débil, de 2,5 a 7,5 es moderada y más es fuerte.'],
-    radar: ['Satélite GOES-East', 'Imágenes reales del satélite GOES-East (NOAA), servidas por NASA. Llega una cada 10 minutos, con unos 40 a 60 minutos de atraso, y el loop muestra las últimas 2 horas, unos 550 km alrededor de Miramar.<br><br><strong>Color real</strong>: como se ve desde el espacio; de noche pasa a infrarrojo. <strong>Tormentas</strong>: infrarrojo, donde el verde, el azul y el amarillo marcan nubes muy altas y frías, las que suelen dar tormentas.<br><br>Ojo: el satélite muestra <strong>nubes, no lluvia</strong>. Una nube blanca puede no llover.'],
+    radar: ['Satélite GOES-East', 'Imágenes reales del satélite GOES-East (NOAA), servidas por NASA. Llega una cada 10 minutos, con unos 40 a 60 minutos de atraso. El loop muestra las últimas 2 horas, en la <strong>zona</strong> (≈ 550 km) o la <strong>región</strong> (≈ 1100 km) alrededor de Miramar.<br><br>Para cubrir ese atraso, los últimos cuadros (marcados <strong>PROYECCIÓN</strong>, con borde punteado) mueven la última imagen real según hacia dónde y a qué velocidad venían las nubes, hasta ahora y 30 min más. Antes de mostrarla se valida contra las imágenes reales; si no mejora, no aparece. No adivina nubes que se forman o se deshacen.<br><br><strong>Color real</strong>: como se ve desde el espacio; de noche pasa a infrarrojo. <strong>Tormentas</strong>: infrarrojo, donde el verde, el azul y el amarillo marcan nubes muy altas y frías, las que suelen dar tormentas.<br><br>Ojo: el satélite muestra <strong>nubes, no lluvia</strong>. Una nube blanca puede no llover.'],
     track: ['Track record', 'La promesa es <strong>si digo que llueve, llueve</strong>, y por eso publicamos qué tan bien acertamos. El porcentaje de acierto se muestra recién con 30 días de datos, para no presumir con pocos casos.']
   };
   let current = null;
@@ -1345,35 +1357,169 @@ html { scroll-behavior: smooth; }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 })();
 
-// Loop satelital GOES-East (NASA GIBS). Miramar queda en el centro exacto del encuadre.
+// Loop satelital GOES-East (NASA GIBS) + proyección por advección. Miramar queda en el centro.
 (function () {
   const $ = (id) => document.getElementById(id);
   const LAYERS = { geocolor: 'GOES-East_ABI_GeoColor', ir: 'GOES-East_ABI_Band13_Clean_Infrared' };
-  const BBOX = [-65.575, -33.415, -59.775, -28.415];  // lon/lat: ~550 km por lado, centro Miramar
+  const CENTER = [-62.675, -30.915];  // Miramar (lon, lat)
+  const ZOOMS = {  // medio ancho en grados; la relación lon/lat compensa la latitud para que el cuadro sea cuadrado en km
+    zona: { dlon: 2.9, dlat: 2.5, km: '≈ 550 km' },
+    region: { dlon: 5.8, dlat: 5.0, km: '≈ 1100 km' },
+  };
+  const PLACES = {
+    zona: [['Córdoba', -31.4201, -64.1888], ['San Francisco', -31.4278, -62.0828], ['Santa Fe', -31.6333, -60.7]],
+    region: [['Córdoba', -31.4201, -64.1888], ['Santa Fe', -31.6333, -60.7], ['Rosario', -32.9468, -60.6393],
+             ['Sgo. del Estero', -27.7951, -64.2615], ['San Luis', -33.295, -66.3356], ['Resistencia', -27.4514, -58.9867],
+             ['Buenos Aires', -34.6037, -58.3816]],
+  };
   const SIZE = 640, STEP = 10 * 60 * 1000, LOOKBACK = 18, KEEP = 12;
   const MIN_BYTES = 8000;  // GIBS responde 200 con una imagen vacía (~2 KB) si el horario no llegó aún
-  const PLACES = [['Córdoba', -31.4201, -64.1888], ['San Francisco', -31.4278, -62.0828], ['Santa Fe', -31.6333, -60.7]];
+  const N = 128, BS = 16, R = 8;  // resolución, bloque y búsqueda (en píxeles de N) para medir el movimiento
   const img = $('satImg'), status = $('satStatus'), timeLbl = $('satTime'), fill = $('rtFill'), play = $('rtPlay');
+  const viz = img.parentElement, badge = $('satProj'), projBar = $('rtProj');
   let frames = [], idx = 0, playing = true, timer = null, hold = 0, token = 0;
+  let layer = 'geocolor', zoom = 'zona';
 
-  const px = (lat, lon) => [(lon - BBOX[0]) / (BBOX[2] - BBOX[0]) * SIZE, (BBOX[3] - lat) / (BBOX[3] - BBOX[1]) * SIZE];
-  $('satOverlay').innerHTML = PLACES.map(([n, lat, lon]) => {
-    const [x, y] = px(lat, lon);
-    return `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="3.5" fill="#F2EEE2" stroke="#000" stroke-width="1"/>` +
-      `<text x="${(x + 7).toFixed(0)}" y="${(y + 4).toFixed(0)}" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#F2EEE2" stroke="#000" stroke-width="3" paint-order="stroke">${n}</text>`;
-  }).join('');
+  const bbox = () => {
+    const z = ZOOMS[zoom];
+    return [CENTER[0] - z.dlon, CENTER[1] - z.dlat, CENTER[0] + z.dlon, CENTER[1] + z.dlat];
+  };
+  function drawPlaces() {
+    const B = bbox();
+    $('satOverlay').innerHTML = PLACES[zoom].map(([n, lat, lon]) => {
+      const x = (lon - B[0]) / (B[2] - B[0]) * SIZE, y = (B[3] - lat) / (B[3] - B[1]) * SIZE;
+      return `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="3.5" fill="#F2EEE2" stroke="#000" stroke-width="1"/>` +
+        `<text x="${(x + 7).toFixed(0)}" y="${(y + 4).toFixed(0)}" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#F2EEE2" stroke="#000" stroke-width="3" paint-order="stroke">${n}</text>`;
+    }).join('');
+  }
 
-  const url = (layer, t) => 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1' +
-    `&SRS=EPSG:4326&BBOX=${BBOX.join(',')}&WIDTH=${SIZE}&HEIGHT=${SIZE}&STYLES=&FORMAT=image/jpeg&LAYERS=${layer}` +
+  const url = (t) => 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1' +
+    `&SRS=EPSG:4326&BBOX=${bbox().join(',')}&WIDTH=${SIZE}&HEIGHT=${SIZE}&STYLES=&FORMAT=image/jpeg&LAYERS=${LAYERS[layer]}` +
     `&TIME=${t.toISOString().slice(0, 19)}Z`;
   const hhmm = (t) => `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+
+  // --- Movimiento de las nubes (block matching) y proyección -------------------------------
+  // onload y no decode(): decode() queda en pausa si la pestaña está en segundo plano.
+  function toImg(src) {
+    return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+  }
+  function grayOf(im) {
+    const c = document.createElement('canvas'); c.width = c.height = N;
+    const g = c.getContext('2d'); g.drawImage(im, 0, 0, N, N);
+    const d = g.getImageData(0, 0, N, N).data, a = new Float32Array(N * N);
+    for (let i = 0; i < N * N; i++) a[i] = (d[4 * i] + d[4 * i + 1] + d[4 * i + 2]) / 3;
+    return a;
+  }
+  // Hacia dónde se movió en B el bloque (x0, y0, w, h) de A.
+  function bestShift(A, B, x0, y0, w, h) {
+    let mean = 0, sq = 0, cnt = 0;
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) { const v = A[y * N + x]; mean += v; sq += v * v; cnt++; }
+    mean /= cnt;
+    const std = Math.sqrt(Math.max(0, sq / cnt - mean * mean));
+    let best = [0, 0], bestCost = Infinity;
+    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+      let cost = 0, n = 0;
+      for (let y = y0; y < y0 + h; y += 2) for (let x = x0; x < x0 + w; x += 2) {
+        const xx = x + dx, yy = y + dy;
+        if (xx < 0 || yy < 0 || xx >= N || yy >= N) continue;
+        cost += Math.abs(B[yy * N + xx] - A[y * N + x]); n++;
+      }
+      if (n && cost / n < bestCost) { bestCost = cost / n; best = [dx, dy]; }
+    }
+    return { v: best, std };
+  }
+  function motionField(A, B) {
+    const glob = bestShift(A, B, R, R, N - 2 * R, N - 2 * R).v;
+    const G = N / BS, raw = [];
+    for (let j = 0; j < G; j++) {
+      raw.push([]);
+      for (let i = 0; i < G; i++) {
+        const r = bestShift(A, B, i * BS, j * BS, BS, BS);
+        raw[j].push(r.std < 6 ? glob : r.v);  // bloques sin textura (despejado o nublado parejo): movimiento general
+      }
+    }
+    return raw.map((row, j) => row.map((_, i) => {
+      let sx = 0, sy = 0, n = 0;
+      for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++) {
+        const r = raw[j + b] && raw[j + b][i + a];
+        if (r) { sx += r[0]; sy += r[1]; n++; }
+      }
+      return [sx / n, sy / n];
+    }));
+  }
+  function vecAt(field, x, y, W) {
+    const G = field.length;
+    const gx = Math.min(G - 1, Math.max(0, x / W * G - 0.5)), gy = Math.min(G - 1, Math.max(0, y / W * G - 0.5));
+    const i0 = Math.floor(gx), j0 = Math.floor(gy), i1 = Math.min(G - 1, i0 + 1), j1 = Math.min(G - 1, j0 + 1);
+    const fx = gx - i0, fy = gy - j0, a = field[j0][i0], b = field[j0][i1], c = field[j1][i0], d = field[j1][i1];
+    return [(a[0] * (1 - fx) + b[0] * fx) * (1 - fy) + (c[0] * (1 - fx) + d[0] * fx) * fy,
+            (a[1] * (1 - fx) + b[1] * fx) * (1 - fy) + (c[1] * (1 - fx) + d[1] * fx) * fy];
+  }
+  function warpGray(A, field, scale) {
+    const out = new Float32Array(N * N);
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const [vx, vy] = vecAt(field, x, y, N);
+      const sx = Math.min(N - 1, Math.max(0, Math.round(x - vx * scale)));
+      const sy = Math.min(N - 1, Math.max(0, Math.round(y - vy * scale)));
+      out[y * N + x] = A[sy * N + sx];
+    }
+    return out;
+  }
+  function meanAbs(A, B) {
+    let s = 0, n = 0;
+    for (let y = R; y < N - R; y++) for (let x = R; x < N - R; x++) { s += Math.abs(A[y * N + x] - B[y * N + x]); n++; }
+    return s / n;
+  }
+  async function warpImage(im, field, scale) {
+    const c = document.createElement('canvas'); c.width = c.height = SIZE;
+    const g = c.getContext('2d'); g.drawImage(im, 0, 0, SIZE, SIZE);
+    const src = g.getImageData(0, 0, SIZE, SIZE), out = g.createImageData(SIZE, SIZE), k = SIZE / N;
+    for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      const [vx, vy] = vecAt(field, x, y, SIZE);
+      const sx = Math.min(SIZE - 1, Math.max(0, Math.round(x - vx * k * scale)));
+      const sy = Math.min(SIZE - 1, Math.max(0, Math.round(y - vy * k * scale)));
+      const si = (sy * SIZE + sx) * 4, di = (y * SIZE + x) * 4;
+      out.data[di] = src.data[si]; out.data[di + 1] = src.data[si + 1]; out.data[di + 2] = src.data[si + 2]; out.data[di + 3] = 255;
+    }
+    g.putImageData(out, 0, 0);
+    const blob = await new Promise((res) => c.toBlob(res, 'image/jpeg', 0.85));
+    return URL.createObjectURL(blob);
+  }
+  // Proyecta la última imagen real hasta ahora y +30 min, solo si el método le gana a "no mover nada".
+  async function project(my) {
+    const last = frames[frames.length - 1];
+    const back = (mins) => frames.find((f) => Math.abs((last.t - f.t) / 60000 - mins) < 6);
+    const f30 = back(30), f60 = back(60);
+    if (!f30 || !f60) return { ok: false, why: 'faltan imágenes para medir el movimiento' };
+    const [g60, g30, g0] = (await Promise.all([f60, f30, last].map((f) => toImg(f.src)))).map(grayOf);
+    const test = motionField(g60, g30);
+    const errProj = meanAbs(warpGray(g30, test, 1), g0), errStill = meanAbs(g30, g0);
+    const skill = errStill > 0 ? 1 - errProj / errStill : 0;
+    if (skill <= 0.05) return { ok: false, why: 'las nubes no se mueven de forma pareja', skill };
+    const field = motionField(g30, g0), lastImg = await toImg(last.src);
+    const nowMs = Math.floor(Date.now() / 60000) * 60000;
+    const out = [];
+    for (const [t, tag] of [[new Date(nowMs), 'ahora'], [new Date(nowMs + 30 * 60000), '+30 min']]) {
+      const mins = (t - last.t) / 60000;
+      if (mins <= 0) continue;
+      if (my !== token) return { ok: false, why: 'cancelado' };
+      out.push({ t, src: await warpImage(lastImg, field, mins / 30), projected: true, tag, mins: Math.round(mins) });
+    }
+    return { ok: true, frames: out, skill };
+  }
 
   function show() {
     const f = frames[idx];
     img.src = f.src;
-    const ago = Math.round((Date.now() - f.t) / 60000);
-    const agoTxt = ago < 60 ? `${ago} min` : `${Math.floor(ago / 60)} h${ago % 60 ? ` ${ago % 60} min` : ''}`;
-    timeLbl.textContent = `${hhmm(f.t)} · hace ${agoTxt}`;
+    viz.classList.toggle('projected', !!f.projected);
+    badge.hidden = !f.projected;
+    if (f.projected) {
+      timeLbl.textContent = `${hhmm(f.t)} · ${f.tag === 'ahora' ? 'ahora' : 'en 30 min'} (proyección)`;
+    } else {
+      const ago = Math.round((Date.now() - f.t) / 60000);
+      const agoTxt = ago < 60 ? `${ago} min` : `${Math.floor(ago / 60)} h${ago % 60 ? ` ${ago % 60} min` : ''}`;
+      timeLbl.textContent = `${hhmm(f.t)} · hace ${agoTxt}`;
+    }
     fill.style.width = `${((idx + 1) / frames.length) * 100}%`;
   }
   function stepFrame() {
@@ -1393,16 +1539,26 @@ html { scroll-behavior: smooth; }
       : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
   }
 
-  async function load(key) {
+  function setTicks(proj) {
+    const real = frames.filter((f) => !f.projected);
+    $('rtTicks').innerHTML = `<span>${hhmm(real[0].t)}</span><span>${ZOOMS[zoom].km}</span>` +
+      `<span>${proj ? 'ahora · +30 min' : hhmm(real[real.length - 1].t)}</span>`;
+    projBar.style.width = `${(frames.length - real.length) / frames.length * 100}%`;
+  }
+
+  async function load() {
     const my = ++token;
     clearInterval(timer);
     status.hidden = false;
     status.textContent = 'Cargando imágenes del satélite…';
+    badge.hidden = true;
+    viz.classList.remove('projected');
+    drawPlaces();
     const last = Math.floor(Date.now() / STEP) * STEP;
     const times = Array.from({ length: LOOKBACK }, (_, i) => new Date(last - i * STEP));
     const got = await Promise.all(times.map(async (t) => {
       try {
-        const r = await fetch(url(LAYERS[key], t));
+        const r = await fetch(url(t));
         if (!r.ok) return null;
         const b = await r.blob();
         return b.size >= MIN_BYTES ? { t, src: URL.createObjectURL(b) } : null;
@@ -1419,11 +1575,27 @@ html { scroll-behavior: smooth; }
       return;
     }
     status.hidden = true;
-    $('rtTicks').innerHTML = `<span>${hhmm(frames[0].t)}</span><span>${hhmm(frames[frames.length - 1].t)}</span>`;
+    setTicks(false);
     idx = frames.length - 1;
     hold = 0;
     show();
     setPlaying(playing);
+    try {
+      const p = await project(my);
+      viz.dataset.proj = `${layer}/${zoom}: ${p.ok ? 'ok' : p.why}` + (p.skill != null ? ` (mejora ${Math.round(p.skill * 100)} %)` : '');
+      if (my !== token) { (p.frames || []).forEach((f) => URL.revokeObjectURL(f.src)); return; }
+      if (p.ok && p.frames.length) {
+        frames = frames.concat(p.frames);
+        setTicks(true);
+        badge.title = `Validada: le erra ${Math.round(p.skill * 100)} % menos que dejar las nubes quietas.`;
+        console.info(`Proyección validada (${layer}/${zoom}): mejora ${Math.round(p.skill * 100)} %`);
+      } else {
+        console.info(`Sin proyección (${layer}/${zoom}): ${p.why}` + (p.skill != null ? ` (mejora ${Math.round(p.skill * 100)} %)` : ''));
+      }
+    } catch (e) {
+      viz.dataset.proj = `${layer}/${zoom}: error ${e && e.message}`;
+      console.info('Sin proyección:', e);
+    }
   }
 
   play.addEventListener('click', () => setPlaying(!playing));
@@ -1434,12 +1606,17 @@ html { scroll-behavior: smooth; }
     setPlaying(false);
     show();
   });
-  document.querySelectorAll('.sat-toggle button').forEach((b) => b.addEventListener('click', () => {
-    document.querySelectorAll('.sat-toggle button').forEach((x) => x.classList.toggle('active', x === b));
-    load(b.dataset.layer);
-  }));
-  load('geocolor');
-  setInterval(() => load(document.querySelector('.sat-toggle .active').dataset.layer), 10 * 60 * 1000);
+  function bindGroup(groupId, attr, apply) {
+    $(groupId).querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+      $(groupId).querySelectorAll('button').forEach((x) => x.classList.toggle('active', x === b));
+      apply(b.dataset[attr]);
+      load();
+    }));
+  }
+  bindGroup('satLayer', 'layer', (v) => { layer = v; });
+  bindGroup('satZoom', 'zoom', (v) => { zoom = v; });
+  load();
+  setInterval(load, 10 * 60 * 1000);
 })();
 
 // Sidebar: marca la sección en vista

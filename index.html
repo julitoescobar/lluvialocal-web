@@ -1,0 +1,1402 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pronóstico y alertas de lluvia para Miramar de Ansenuza, actualizado cada hora.">
+<title>LluviaLocal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Major+Mono+Display&display=swap">
+<style>
+/* Layout: app oscura con sidebar fija + panel principal en grid.
+   Fondo negro puro con cards elevadas apenas. Un hero visual
+   (radar difuminado azul-cyan) domina la mitad superior.
+   Acento mostaza para marca y highlights críticos.
+   Tipografía: Fraunces display (números clima) + Inter data + Mono técnico. */
+:root {
+  --bg: #000000;
+  --bg-elev: #0B0C10;
+  --bg-elev-2: #14161D;
+  --bg-inset: #06070A;
+  --rule: #1D1F27;
+  --rule-soft: #14161D;
+  --rule-hot: #2A2D38;
+
+  --fg: #F2EEE2;
+  --fg-dim: #B9BBC3;
+  --fg-muted: #6E717C;
+  --fg-faint: #42454F;
+
+  --gold: #E3B341;
+  --gold-dim: #8A6A1E;
+  --sky: #5BA0E8;
+  --sky-deep: #2563A8;
+  --sky-glow: rgba(91, 160, 232, 0.5);
+  --rain: #7FB8ED;
+  --accent-warm: #E86A4A;
+  --good: #52B788;
+  --warn: #E3B341;
+  --crit: #E8674A;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-airport: "Major Mono Display", "JetBrains Mono", ui-monospace, monospace;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  padding-top: 20px;
+}
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; gap: 12px; }
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+@media (max-width: 760px) {
+  .sidebar { flex-direction: row; position: static; }
+}
+.sb-logo {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--accent-warm) 100%);
+  display: grid; place-items: center;
+  color: #000;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+.sb-item {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+  text-decoration: none;
+}
+.sb-item:hover { color: var(--fg); background: var(--bg-elev-2); }
+.sb-item.active { color: var(--gold); background: var(--bg-elev-2); }
+.sb-item svg { width: 18px; height: 18px; }
+
+/* Scroll anchors (so sidebar jumps don't land glued to the top) */
+[id="resumen"], [id="radar"], [id="pronostico"], [id="alertas"] {
+  scroll-margin-top: 24px;
+}
+html { scroll-behavior: smooth; }
+
+/* Main */
+.main { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4px;
+  flex-wrap: wrap;
+}
+.crumbs {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+}
+.crumbs .slash { color: var(--fg-faint); }
+.crumbs .here { color: var(--fg); }
+.crumbs .brand {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--gold);
+  font-size: 14px;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px 5px 10px;
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  letter-spacing: 0.02em;
+}
+.status-pill .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 10px var(--good);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Hero: split overview + radar */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+  min-height: 420px;
+}
+@media (max-width: 920px) { .hero { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 20px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+.card-h {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.card-h .k {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+.card-h .k .dot-gold {
+  display: inline-block;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold);
+  margin-right: 7px;
+  vertical-align: middle;
+  margin-bottom: 2px;
+}
+.card-h .meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-faint);
+}
+
+/* Overview hero */
+.overview { padding: 28px 28px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 20px;}
+.loc-row {
+  display: flex; align-items: baseline; gap: 10px;
+}
+.loc-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--gold);
+  line-height: 1;
+}
+.loc-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.big {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(64px, 11vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  margin: 0;
+  text-wrap: balance;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.big em { font-style: italic; color: var(--gold); }
+.big .tiny-unit {
+  font-size: 0.26em;
+  letter-spacing: 0;
+  color: var(--fg-muted);
+  font-style: normal;
+  font-weight: 400;
+  margin-left: 6px;
+  font-family: var(--font-body);
+  vertical-align: top;
+  position: relative; top: 0.6em;
+}
+.subhead {
+  font-size: 15px;
+  color: var(--fg-dim);
+  max-width: 44ch;
+  line-height: 1.45;
+}
+.subhead strong { color: var(--fg); font-weight: 600; }
+
+.now-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+.nw { min-width: 0; }
+.nw .k { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 6px; }
+.nw .v { font-family: var(--font-mono); font-size: 17px; font-weight: 500; color: var(--fg); }
+.nw .v small { color: var(--fg-muted); font-weight: 400; font-size: 11px; margin-left: 2px; }
+.nw .arrow-inline {
+  display: inline-block; width: 14px; height: 14px;
+  color: var(--sky);
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* Radar card */
+.radar {
+  padding: 0;
+  background: linear-gradient(180deg, #06080E 0%, #0A0D16 100%);
+}
+.radar-head {
+  position: absolute;
+  top: 18px; left: 20px; right: 20px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  z-index: 3;
+  pointer-events: none;
+}
+.radar-viz {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 460px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.radar-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.radar-pin {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  text-align: center;
+  pointer-events: none;
+}
+.radar-pin .ring {
+  width: 60px; height: 60px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  position: relative;
+  animation: radar-pulse 3s ease-out infinite;
+}
+.radar-pin .ring::before, .radar-pin .ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  opacity: 0;
+  animation: radar-wave 3s ease-out infinite;
+}
+.radar-pin .ring::after { animation-delay: 1.5s; }
+@keyframes radar-wave {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+@keyframes radar-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(227, 179, 65, 0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(227, 179, 65, 0.05); }
+}
+.radar-pin .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 12px var(--gold);
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.radar-pin .lbl {
+  position: absolute;
+  top: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.cloud {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(22px);
+  opacity: 0.7;
+  animation: cloud-drift 32s linear infinite;
+}
+.cloud.a { width: 180px; height: 180px; background: radial-gradient(circle, rgba(91,160,232,0.9), transparent 70%); top: 15%; left: -10%; animation-duration: 40s; }
+.cloud.b { width: 260px; height: 220px; background: radial-gradient(circle, rgba(123,184,237,0.75), transparent 70%); top: 45%; left: -15%; animation-duration: 55s; animation-delay: -10s; }
+.cloud.c { width: 140px; height: 140px; background: radial-gradient(circle, rgba(74,124,191,0.9), transparent 70%); top: 70%; left: -8%; animation-duration: 28s; animation-delay: -16s; }
+.cloud.d { width: 200px; height: 160px; background: radial-gradient(circle, rgba(91,160,232,0.5), transparent 70%); top: 25%; left: -20%; animation-duration: 48s; animation-delay: -22s; }
+@keyframes cloud-drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(600px); }
+}
+.radar-grid {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at center, transparent 0%, transparent 15%, rgba(255,255,255,0.03) 15.5%, transparent 16%),
+    radial-gradient(circle at center, transparent 0%, transparent 32%, rgba(255,255,255,0.03) 32.5%, transparent 33%),
+    radial-gradient(circle at center, transparent 0%, transparent 48%, rgba(255,255,255,0.03) 48.5%, transparent 49%);
+  pointer-events: none;
+  z-index: 1;
+}
+.radar-scan {
+  position: absolute; inset: 0;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(227,179,65,0.12) 20deg, transparent 40deg);
+  animation: scan 5s linear infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes scan { to { transform: rotate(360deg); } }
+
+/* Radar timeline (Rain-Alarm style control) */
+.radar-timeline {
+  position: absolute;
+  left: 20px; right: 20px; bottom: 18px;
+  z-index: 4;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.rt-play {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  display: grid; place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform .15s ease;
+}
+.rt-play:hover { transform: scale(1.05); }
+.rt-play svg { width: 14px; height: 14px; }
+.rt-track { flex: 1; min-width: 0; }
+.rt-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.rt-fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--sky), var(--gold));
+  border-radius: 999px;
+  width: 50%;
+  transition: width .2s linear;
+}
+.rt-ticks {
+  display: flex; justify-content: space-between;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--fg-muted);
+  letter-spacing: 0.04em;
+}
+.rt-ticks span:nth-child(3) { color: var(--gold); font-weight: 600; }
+@media (max-width: 480px) {
+  .rt-ticks span:nth-child(2), .rt-ticks span:nth-child(4) { display: none; }
+}
+
+/* FIDS header (flight information display style) */
+.fids {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+}
+.fids::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 24px, rgba(227,179,65,0.025) 24px 25px);
+  pointer-events: none;
+}
+.fids-brand {
+  font-family: var(--font-airport);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  text-transform: lowercase;
+  display: flex; align-items: center; gap: 12px;
+  position: relative;
+}
+.fids-brand .sep { color: var(--fg-faint); font-size: 10px; letter-spacing: 0.2em; }
+.fids-brand .station { color: var(--fg); }
+.fids-ticker {
+  display: flex; align-items: center; gap: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  position: relative;
+}
+.fids-ticker .live {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--good);
+}
+.fids-ticker .live::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 8px var(--good);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+.fids-ticker .cond { color: var(--fg); }
+
+/* Forecast board (arrivals-table style) */
+.board {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.board-head, .board-row {
+  display: grid;
+  grid-template-columns: 56px 1.4fr 1.1fr 100px 110px 120px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+}
+.board-head {
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  font-weight: 600;
+  padding: 11px 20px;
+}
+.board-row {
+  border-top: 1px solid var(--rule-soft);
+  font-size: 14px;
+  transition: background .15s ease;
+}
+.board-row:first-of-type { border-top: none; }
+.board-row:hover { background: var(--bg-elev-2); }
+.board-row .cod {
+  font-family: var(--font-airport);
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+}
+.board-row .flight {
+  color: var(--fg);
+  font-weight: 500;
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+.board-row .flight .dow {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.board-row .flight .date {
+  font-family: var(--font-mono);
+  color: var(--fg-muted);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.board-row .cond-cell {
+  display: flex; align-items: center; gap: 9px;
+  color: var(--fg-dim);
+  font-size: 13px;
+}
+.board-row .cond-cell svg { width: 17px; height: 17px; flex-shrink: 0; }
+.board-row .mm {
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+.board-row .mm small { font-weight: 400; color: var(--fg-faint); font-size: 11px; margin-left: 3px; }
+.board-row .prob {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+.board-row .prob .mini {
+  width: 44px; height: 4px;
+  background: var(--bg-inset); border-radius: 999px;
+  overflow: hidden; position: relative;
+}
+.board-row .prob .mini span {
+  position: absolute; inset: 0 auto 0 0;
+  background: var(--sky); border-radius: 999px;
+}
+.board-row .status {
+  justify-self: end;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: color-mix(in oklab, var(--good) 15%, transparent);
+  color: var(--good);
+  border: 1px solid color-mix(in oklab, var(--good) 35%, transparent);
+}
+.board-row .status.rain {
+  background: color-mix(in oklab, var(--gold) 15%, transparent);
+  color: var(--gold);
+  border-color: color-mix(in oklab, var(--gold) 40%, transparent);
+}
+.board-row .status.hazard {
+  background: color-mix(in oklab, var(--crit) 15%, transparent);
+  color: var(--crit);
+  border-color: color-mix(in oklab, var(--crit) 40%, transparent);
+}
+.board-row .prob .mini span.hot { background: var(--gold); }
+
+@media (max-width: 760px) {
+  .board-head { display: none; }
+  .board-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    padding: 14px 16px;
+  }
+  .board-row .cod { grid-column: 1 / 2; }
+  .board-row .status { grid-column: 2 / 3; }
+  .board-row .flight { grid-column: 1 / -1; }
+  .board-row .cond-cell { grid-column: 1 / -1; order: 2; }
+  .board-row .mm { grid-column: 1 / 2; }
+  .board-row .prob { grid-column: 2 / 3; justify-content: flex-end; }
+}
+
+/* 7-day forecast strip (legacy — kept for reference, unused now) */
+.days-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .days-row { grid-template-columns: repeat(2, 1fr); } }
+.day {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 14px 15px;
+  transition: border-color .2s ease, transform .2s ease;
+  position: relative;
+  min-width: 0;
+}
+.day:hover { border-color: var(--rule-hot); transform: translateY(-1px); }
+.day.alert { border-color: var(--gold-dim); }
+.day.alert::before {
+  content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 2px;
+  background: var(--gold);
+  border-radius: 0 0 2px 2px;
+}
+.day .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;}
+.day .dow { font-family: var(--font-display); font-weight: 400; font-size: 17px; color: var(--fg); font-style: italic; }
+.day .date { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); letter-spacing: 0.04em; }
+.day .mm-big {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.day .mm-big small {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--fg-muted);
+  font-weight: 500;
+  margin-left: 3px;
+}
+.day .bar-wrap {
+  margin-top: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.day .bar {
+  flex: 1; height: 3px;
+  background: var(--bg-inset);
+  border-radius: 999px; overflow: hidden;
+  position: relative;
+}
+.day .bar span {
+  position: absolute; inset: 0 auto 0 0;
+  background: var(--sky);
+  border-radius: 999px;
+}
+.day.alert .bar span { background: var(--gold); }
+.day .pct {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+  min-width: 32px; text-align: right;
+}
+.day .wind {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-faint);
+}
+
+/* Chart card */
+.chart-card { padding: 20px 22px 18px; }
+.chart-wrap {
+  position: relative;
+  height: 180px;
+  margin-top: 8px;
+}
+.chart-wrap svg { width: 100%; height: 100%; display: block; }
+.chart-legend {
+  display: flex; gap: 18px;
+  font-size: 11px; color: var(--fg-muted);
+  margin-top: 4px;
+}
+.chart-legend .sw {
+  display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+  margin-right: 6px; vertical-align: middle;
+}
+.chart-xaxis {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-faint);
+  margin-top: 4px;
+  padding: 0 6px;
+}
+
+/* Alerts bar */
+.alert-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+}
+.alert-bar.quiet { }
+.alert-bar .ic {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: color-mix(in oklab, var(--good) 20%, var(--bg-elev-2));
+  color: var(--good);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.alert-bar .ic svg { width: 20px; height: 20px; }
+.alert-bar .h { font-family: var(--font-display); font-size: 18px; font-weight: 400; margin: 0; letter-spacing: -0.01em; }
+.alert-bar .s { font-size: 12.5px; color: var(--fg-muted); margin-top: 1px; }
+
+/* Grid lower */
+.grid-lower {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 920px) { .grid-lower { grid-template-columns: 1fr; } }
+
+.neighbors { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.nbr {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--rule-soft);
+  border-radius: 12px;
+  transition: border-color .15s ease;
+}
+.nbr:hover { border-color: var(--rule-hot); }
+.nbr .wind-svg {
+  width: 36px; height: 36px;
+  color: var(--sky);
+  background: color-mix(in oklab, var(--sky) 10%, var(--bg-inset));
+  border-radius: 50%;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.nbr .wind-svg svg { width: 18px; height: 18px; }
+.nbr .name {
+  font-family: var(--font-display); font-size: 17px; font-style: italic; color: var(--fg); line-height: 1.1;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+}
+.nbr .name .iata {
+  font-family: var(--font-airport);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  text-transform: lowercase;
+}
+.nbr .detail { font-family: var(--font-mono); font-size: 11px; color: var(--fg-muted); margin-top: 2px; }
+.nbr .mm { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--fg-dim); text-align: right;}
+.nbr .mm.wet { color: var(--gold); }
+
+.weights-card .bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bg-inset);
+  margin: 6px 0 14px;
+  gap: 2px;
+}
+.weights-card .bar span { height: 100%; border-radius: 3px; }
+.w-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border-top: 1px solid var(--rule-soft);
+}
+.w-row:first-child { border-top: none; }
+.w-row i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.w-row .nm { color: var(--fg); font-weight: 500; }
+.w-row .pct { color: var(--fg-dim); text-align: right; }
+.w-row .mae { color: var(--fg-faint); text-align: right; min-width: 70px; }
+
+/* Pipeline tiles */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+.tile {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.tile .k { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 6px; }
+.tile .v {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.tile .v small { font-family: var(--font-body); font-size: 12px; color: var(--fg-muted); margin-left: 3px; font-weight: 500; }
+.tile .sub { font-size: 11px; color: var(--fg-faint); margin-top: 6px; }
+.tile.ok .v { color: var(--good); }
+
+/* Foot */
+.foot {
+  margin-top: 24px;
+  padding: 16px 4px 0;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-faint);
+  display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  letter-spacing: 0.04em;
+}
+.foot a { color: var(--gold); text-decoration: none; }
+
+/* Split-flap display (Solari-style) */
+.flap {
+  display: inline-flex;
+  gap: 3px;
+  vertical-align: baseline;
+  perspective: 300px;
+}
+.flap-cell {
+  display: inline-block;
+  min-width: 0.78em;
+  padding: 0.04em 0.12em;
+  background: #000;
+  border: 1px solid #1A1A1A;
+  border-radius: 3px;
+  text-align: center;
+  color: var(--fg);
+  font-family: var(--font-airport);
+  font-weight: 400;
+  position: relative;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 1px 2px rgba(0,0,0,0.5);
+  transform-style: preserve-3d;
+  transition: transform .09s cubic-bezier(.3, 1.5, .5, 1);
+}
+.flap-cell::after {
+  content: '';
+  position: absolute;
+  left: 2px; right: 2px; top: 50%;
+  height: 1px;
+  background: #000;
+  box-shadow: 0 -1px 0 rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.04);
+  z-index: 2;
+  pointer-events: none;
+  transform: translateY(-0.5px);
+}
+.flap-cell.sep {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  min-width: 0.2em;
+  padding: 0;
+}
+.flap-cell.sep::after { display: none; }
+.flap-cell.tick {
+  animation: flap-tick .11s ease-out;
+}
+@keyframes flap-tick {
+  0% { transform: rotateX(0); }
+  40% { transform: rotateX(-55deg) scaleY(.9); }
+  100% { transform: rotateX(0); }
+}
+.flap-cell.hot {
+  color: var(--gold);
+}
+
+/* Info popovers */
+.info-btn {
+  display: inline-grid; place-items: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--rule-hot);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: baseline;
+  margin-left: 8px;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+  padding: 0;
+  position: relative;
+  top: -2px;
+}
+.info-btn:hover, .info-btn.open {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: color-mix(in oklab, var(--gold) 10%, transparent);
+}
+.info-pop {
+  position: absolute;
+  z-index: 50;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--rule-hot);
+  border-radius: 10px;
+  padding: 14px 16px;
+  width: min(360px, calc(100vw - 48px));
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+  margin-top: 10px;
+}
+.info-pop strong { color: var(--fg); font-weight: 600; }
+.info-pop .k {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.info-pop code {
+  background: var(--bg-inset);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--fg);
+}
+.info-pop .close {
+  position: absolute;
+  top: 8px; right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 4px;
+}
+.info-pop .close:hover { color: var(--fg); }
+.info-anchor { position: relative; display: inline-block; }
+
+/* Section label */
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; padding: 0 4px;
+  margin-top: 8px;
+}
+.section-head .t {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.section-head .t em { color: var(--gold); font-style: italic; }
+.section-head .st {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+</style>
+<style>
+.iata-inline { font-family: var(--font-airport); font-size: 11px; color: var(--gold); letter-spacing: 0.1em; text-transform: lowercase; }
+.board-row .status.maybe { background: transparent; color: var(--fg-dim); border-color: var(--rule-hot); }
+.alert-bar.active { border-color: color-mix(in oklab, var(--gold) 50%, transparent); }
+.alert-bar.active .ic { background: color-mix(in oklab, var(--gold) 22%, var(--bg-elev-2)); color: var(--gold); }
+.chart-note { font-size: 12px; color: var(--fg-muted); margin-top: 8px; }
+.cloud-field { position: absolute; inset: -25%; transition: transform 1.2s ease, opacity 1.2s ease; z-index: 1; }
+.alert-list { margin-top: 6px; font-size: 12px; color: var(--fg-muted); }
+.foot a { color: var(--gold); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-logo">◐</div>
+    <a class="sb-item active" href="#resumen" title="Resumen" data-anchor="resumen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+    </a>
+    <a class="sb-item" href="#radar" title="Radar" data-anchor="radar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="12" x2="12" y2="2"/><path d="M12 12L4.93 4.93"/></svg>
+    </a>
+    <a class="sb-item" href="#pronostico" title="Pronóstico" data-anchor="pronostico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+    </a>
+    <a class="sb-item" href="#alertas" title="Alertas" data-anchor="alertas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </a>
+  </aside>
+
+  <div class="main">
+
+    <div class="fids">
+      <div class="fids-brand">
+        <span>lluvialocal</span>
+        <span class="sep">◆</span>
+        <span class="station" id="station"></span>
+      </div>
+      <div class="fids-ticker">
+        <span id="fidsClock"></span>
+        <span>cond <span class="cond" id="fidsCond"></span></span>
+        <span class="live" id="fidsLive"></span>
+      </div>
+    </div>
+
+    <section class="hero" id="resumen">
+      <div class="card overview">
+        <div>
+          <div class="loc-row">
+            <span class="loc-name">Miramar</span>
+            <span class="iata-inline" id="locCode"></span>
+            <span class="loc-sub">Mar Chiquita · Ansenuza</span>
+          </div>
+          <h1 class="big"><span class="flap" id="heroFlap" style="font-family: var(--font-airport);"></span><span class="tiny-unit">mm · próximas 12 h</span></h1>
+          <p class="subhead"><strong id="headTitle"></strong>. <span id="headSub"></span></p>
+        </div>
+        <div class="now-grid">
+          <div class="nw"><div class="k">Ahora</div><div class="v" id="nowMm"></div></div>
+          <div class="nw"><div class="k">Viento</div><div class="v" id="nowWind"></div></div>
+          <div class="nw"><div class="k">Ráfaga</div><div class="v" id="nowGust"></div></div>
+        </div>
+      </div>
+
+      <div class="card radar" id="radar">
+        <div class="radar-head">
+          <div class="info-anchor" style="pointer-events: auto;">
+            <div class="loc-sub" style="color: var(--fg-muted);"><span class="dot-gold" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:middle;"></span>Vista ilustrativa<button class="info-btn" data-info="radar">i</button></div>
+          </div>
+          <div class="loc-sub" style="font-family: var(--font-mono);">60 km</div>
+        </div>
+        <div class="radar-viz">
+          <svg class="radar-map" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" style="position:absolute; inset:0; width:100%; height:100%; opacity:0.35; z-index:0; pointer-events:none;">
+            <path d="M 60 130 Q 50 80 120 70 Q 210 55 300 95 Q 360 130 345 210 Q 320 300 220 320 Q 120 335 70 270 Q 40 200 60 130 Z" fill="rgba(74, 156, 232, 0.25)" stroke="rgba(123, 184, 237, 0.6)" stroke-width="1"/>
+            <g font-family="Inter, sans-serif" font-size="8" fill="rgba(227, 179, 65, 0.8)">
+              <circle cx="200" cy="200" r="2.5" fill="rgba(227, 179, 65, 1)"/>
+              <circle cx="215" cy="265" r="1.5" fill="rgba(242, 238, 226, 0.8)"/><text x="222" y="268">Balnearia</text>
+              <circle cx="170" cy="270" r="1.5" fill="rgba(242, 238, 226, 0.8)"/><text x="118" y="273" text-anchor="end">Marull</text>
+              <circle cx="300" cy="210" r="1.5" fill="rgba(242, 238, 226, 0.8)"/><text x="306" y="213">Chipión</text>
+            </g>
+          </svg>
+          <div class="radar-grid"></div>
+          <div class="cloud-field" id="cloudField">
+            <div class="cloud a"></div><div class="cloud b"></div><div class="cloud c"></div><div class="cloud d"></div>
+          </div>
+          <div class="radar-scan"></div>
+          <div class="radar-pin"><div class="ring"><div class="dot"></div></div><div class="lbl">Miramar</div></div>
+          <div class="radar-timeline">
+            <button class="rt-play" id="rtPlay" aria-label="Pausar animación">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+            </button>
+            <div class="rt-track">
+              <div class="rt-bar"><div class="rt-fill" id="rtFill"></div></div>
+              <div class="rt-ticks" id="rtTicks"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div class="t info-anchor">Pronóstico próximos días <em>· board</em><button class="info-btn" data-info="pronostico">i</button></div>
+      <div class="st">ensemble ECMWF · GFS · ICON</div>
+    </div>
+    <section class="board" id="pronostico" aria-label="Pronóstico próximos días">
+      <div class="board-head">
+        <div>eta</div><div>día</div><div>condición</div><div>mm</div><div>prob</div><div style="text-align: right;">estado</div>
+      </div>
+      <div id="boardRows"></div>
+    </section>
+
+    <div class="alert-bar" id="alertas">
+      <div class="ic" id="alertIcon"></div>
+      <div style="flex: 1; min-width: 0;">
+        <div class="h" id="alertTitle"></div>
+        <div class="s" id="alertSub"></div>
+        <div class="alert-list" id="alertList"></div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div class="t info-anchor">Próximas 24 h <em>· hora a hora</em><button class="info-btn" data-info="hourly">i</button></div>
+      <div class="st">hora Córdoba</div>
+    </div>
+    <div class="card chart-card">
+      <div class="chart-legend">
+        <span><span class="sw" style="background:var(--sky);"></span>Probabilidad</span>
+        <span><span class="sw" style="background:var(--gold);"></span>Milímetros esperados</span>
+      </div>
+      <div class="chart-wrap">
+        <svg viewBox="0 0 800 180" preserveAspectRatio="none" aria-label="Probabilidad y milímetros hora a hora">
+          <defs>
+            <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7FB8ED" stop-opacity="1"/><stop offset="100%" stop-color="#2563A8" stop-opacity="0.4"/>
+            </linearGradient>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#E3B341" stop-opacity="0.4"/><stop offset="50%" stop-color="#E3B341" stop-opacity="1"/><stop offset="100%" stop-color="#E86A4A" stop-opacity="1"/>
+            </linearGradient>
+          </defs>
+          <g stroke="#1D1F27" stroke-width="1">
+            <line x1="30" y1="20" x2="790" y2="20"/><line x1="30" y1="60" x2="790" y2="60"/><line x1="30" y1="100" x2="790" y2="100"/><line x1="30" y1="140" x2="790" y2="140"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#42454F">
+            <text x="26" y="24" text-anchor="end">100</text><text x="26" y="64" text-anchor="end">66</text><text x="26" y="104" text-anchor="end">33</text><text x="26" y="144" text-anchor="end">0</text>
+          </g>
+          <g id="chartBars"></g>
+          <g id="chartLine"></g>
+          <line x1="30" y1="140" x2="790" y2="140" stroke="#2A2D38" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="chart-xaxis" id="chartX"></div>
+      <div class="chart-note" id="chartNote"></div>
+    </div>
+
+    <section class="grid-lower">
+      <div class="card">
+        <div class="card-h">
+          <div class="k info-anchor"><span class="dot-gold"></span>Ahora en los pueblos vecinos<button class="info-btn" data-info="nowcast">i</button></div>
+          <div class="meta" id="nbrMeta"></div>
+        </div>
+        <div class="neighbors" id="nbrList"></div>
+      </div>
+      <div class="card weights-card">
+        <div class="card-h">
+          <div class="k info-anchor"><span class="dot-gold"></span>Peso de cada modelo<button class="info-btn" data-info="ensemble">i</button></div>
+          <div class="meta">calibrado vs ERA5</div>
+        </div>
+        <div class="bar" id="wBar"></div>
+        <div id="wRows"></div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div class="t info-anchor">Track record<button class="info-btn" data-info="track">i</button></div>
+      <div class="st">transparencia pública</div>
+    </div>
+    <section class="tiles" id="trackTiles"></section>
+
+    <div class="section-head">
+      <div class="t">Pipeline</div>
+      <div class="st">corre a los :07 de cada hora</div>
+    </div>
+    <section class="tiles" id="pipeTiles"></section>
+
+    <footer class="foot">
+      <span id="footUpdated"></span>
+      <span><a href="https://t.me/lluvialocal">Telegram</a> · <a href="https://whatsapp.com/channel/0029VbDbIbtGzzKZEJ0bun0X">WhatsApp</a> · ECMWF · GFS · ICON · SMN · Open-Meteo · ERA5</span>
+    </footer>
+  </div>
+</div>
+
+<script>window.LLUVIA = {"generated_at": "2026-11-23T12:26:13Z", "generated_local": "lun 23 nov · 09:26", "location": {"name": "Miramar de Ansenuza", "code": "mir"}, "now": {"precip_mm": 0.1, "raining": true, "wind_kmh": 13, "gust_kmh": 26, "wind_dir_deg": 91, "wind_from": "E"}, "next12": {"total_mm": 13.0, "prob": 100, "spread": [4.1, 15.4, 15.6]}, "headline": {"title": "Está lloviendo", "sub": "Sigue hasta las 21 h aprox. Desde ahora caerían 13,0 mm más."}, "days": [{"code": "hoy", "label": "Hoy", "date": "23 nov", "mm": 15.0, "prob": 95, "gust": 44, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 11 h", "partial": true}, {"code": "d+1", "label": "Martes", "date": "24 nov", "mm": 10.2, "prob": 83, "gust": 45, "cond": "Lluvia moderada", "state": "rain", "status": "Lluvia · pico 06 h", "partial": false}, {"code": "d+2", "label": "Miércoles", "date": "25 nov", "mm": 0.0, "prob": 1, "gust": 33, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}, {"code": "d+3", "label": "Jueves", "date": "26 nov", "mm": 0.0, "prob": 16, "gust": 55, "cond": "Sin lluvia", "state": "dry", "status": "Seco", "partial": false}], "hourly": [{"hour": "09", "mm": 0.42, "prob": 69}, {"hour": "10", "mm": 1.06, "prob": 79}, {"hour": "11", "mm": 1.92, "prob": 88}, {"hour": "12", "mm": 1.39, "prob": 93}, {"hour": "13", "mm": 1.46, "prob": 93}, {"hour": "14", "mm": 1.09, "prob": 89}, {"hour": "15", "mm": 1.06, "prob": 85}, {"hour": "16", "mm": 1.29, "prob": 82}, {"hour": "17", "mm": 1.27, "prob": 74}, {"hour": "18", "mm": 1.04, "prob": 67}, {"hour": "19", "mm": 0.55, "prob": 64}, {"hour": "20", "mm": 0.46, "prob": 61}, {"hour": "21", "mm": 0.49, "prob": 59}, {"hour": "22", "mm": 0.74, "prob": 58}, {"hour": "23", "mm": 0.74, "prob": 60}, {"hour": "00", "mm": 0.79, "prob": 63}, {"hour": "01", "mm": 0.48, "prob": 66}, {"hour": "02", "mm": 0.34, "prob": 73}, {"hour": "03", "mm": 1.0, "prob": 79}, {"hour": "04", "mm": 1.13, "prob": 82}, {"hour": "05", "mm": 2.76, "prob": 82}, {"hour": "06", "mm": 3.34, "prob": 78}, {"hour": "07", "mm": 0.1, "prob": 67}, {"hour": "08", "mm": 0.2, "prob": 51}], "neighbors": [{"name": "Balnearia", "code": "bal", "distance_km": 10.9, "direction": "S", "wind_kmh": 7, "wind_dir_deg": 86, "wind_from": "E", "precip_mm": 0.1, "eta_min": null}, {"name": "Marull", "code": "mar", "distance_km": 16.8, "direction": "OSO", "wind_kmh": 10, "wind_dir_deg": 101, "wind_from": "E", "precip_mm": 0.1, "eta_min": null}, {"name": "Altos de Chipión", "code": "chp", "distance_km": 32.4, "direction": "E", "wind_kmh": 8, "wind_dir_deg": 69, "wind_from": "ENE", "precip_mm": 0.2, "eta_min": 146}], "weights": [{"model": "ECMWF", "pct": 43.4, "mae": 2.91}, {"model": "ICON", "pct": 34.5, "mae": 3.79}, {"model": "GFS", "pct": 22.1, "mae": 6.22}], "alerts": {"recent": [{"time": "09:07", "title": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.", "body": "🌧️ Miramar de Ansenuza: está lloviendo y sigue hasta las 21 h aprox.\nDesde ahora caerían 13,0 mm más. Según el modelo, entre 4,1 y 15,6 mm.\nLo más intenso de 11 h a 14 h: cae de forma débil (hasta 1,9 mm en una hora).\nEn total, cantidad moderada: calles mojadas y charcos.\n\nHora a hora (mm):\n09 h  ▂ 0,4\n10 h  ▄ 1,1\n11 h  █ 1,9\n12 h  ▆ 1,4\n13 h  ▆ 1,5\n14 h  ▄ 1,1\n15 h  ▄ 1,1\n16 h  ▅ 1,3\n17 h  ▅ 1,3\n18 h  ▄ 1,0\n19 h  ▃ 0,5\n20 h  ▂ 0,5\n\nProbabilidad de lluvia: 100 %"}, {"time": "09:00", "title": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h", "body": "🌧️ Miramar de Ansenuza: 7.3 mm en próximas 6 h\nProb. máx: 100%. Según ecmwf 6.5, gfs 2.9, icon 11.2."}], "event_open": true}, "pipeline": {"last_run_local": "09:26", "ok_24h": 104, "total_24h": 104}, "track": {"days_running": 1, "alerts_sent": 2, "best_model": "ECMWF", "best_mae": 2.91}};</script>
+<script>
+(function () {
+  const D = window.LLUVIA;
+  const $ = (id) => document.getElementById(id);
+  const mm = (x) => Number(x || 0).toFixed(1).replace('.', ',');
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ARROW = (deg) => `<svg class="arrow-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(${(deg ?? 0) + 180}deg);"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
+  const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>';
+  const ICON_RAIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0018 7h-1.26A8 8 0 104 15.25"/></svg>';
+  const ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  const ICON_WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+
+  // Reloj del visitante
+  const DAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+  const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  function tick() {
+    const d = new Date();
+    $('fidsClock').textContent = `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }
+  tick(); setInterval(tick, 30000);
+
+  if (!D) {
+    $('headTitle').textContent = 'Sin datos todavía';
+    $('headSub').textContent = 'La página se genera en la próxima corrida del pipeline.';
+    return;
+  }
+
+  // Encabezado y hero
+  $('station').textContent = `${D.location.code} · ${D.location.name.toLowerCase()}`;
+  $('locCode').textContent = D.location.code;
+  $('fidsCond').textContent = D.now.raining ? 'lluvia' : (D.next12.total_mm >= 1 ? 'lluvia cerca' : 'sin lluvia');
+  $('fidsLive').textContent = `datos ${D.pipeline.last_run_local || '—'}`;
+  const hero = $('heroFlap');
+  hero.dataset.flap = mm(D.next12.total_mm);
+  if (D.next12.total_mm >= 1) hero.dataset.flapHot = 'all';
+  $('headTitle').textContent = D.headline.title;
+  $('headSub').textContent = D.headline.sub;
+  $('nowMm').innerHTML = `${mm(D.now.precip_mm)}<small>mm/h</small>`;
+  $('nowWind').innerHTML = `${D.now.wind_kmh}<small>km/h ${esc(D.now.wind_from)}</small>${ARROW(D.now.wind_dir_deg)}`;
+  $('nowGust').innerHTML = `${D.now.gust_kmh}<small>km/h</small>`;
+
+  // Board de días
+  $('boardRows').innerHTML = D.days.map((d) => `
+    <div class="board-row">
+      <div class="cod">${esc(d.code)}</div>
+      <div class="flight"><span class="dow">${esc(d.label)}</span><span class="date">${esc(d.date)}${d.partial ? ' · desde ahora' : ''}</span></div>
+      <div class="cond-cell">${d.state === 'dry' ? ICON_SUN : ICON_RAIN}<span>${esc(d.cond)}</span></div>
+      <div class="mm">${mm(d.mm)}<small>mm</small></div>
+      <div class="prob"><div class="mini"><span class="${d.state === 'rain' ? 'hot' : ''}" style="width:${d.prob}%"></span></div>${d.prob}%</div>
+      <div class="status ${d.state === 'rain' ? 'rain' : d.state === 'maybe' ? 'maybe' : ''}">${esc(d.status)}</div>
+    </div>`).join('');
+
+  // Alertas
+  const rec = D.alerts.recent;
+  if (rec.length) {
+    $('alertas').classList.add('active');
+    $('alertIcon').innerHTML = ICON_WARN;
+    $('alertTitle').textContent = rec[0].title.replace(/^\S+\s/, '');
+    $('alertSub').innerHTML = `Enviada a las ${esc(rec[0].time)} al canal de <a href="https://t.me/lluvialocal" style="color: var(--gold); text-decoration: none;">Telegram</a>.`;
+    if (rec.length > 1) $('alertList').textContent = 'Antes: ' + rec.slice(1).map((a) => `${a.time} · ${a.title.replace(/^\S+\s/, '')}`).join(' — ');
+  } else {
+    $('alertIcon').innerHTML = ICON_OK;
+    $('alertTitle').textContent = 'Sin alertas en las últimas 24 h';
+    $('alertSub').textContent = 'Se avisa en Telegram cuando se esperan 5 mm o más con al menos 60 % de probabilidad.';
+  }
+
+  // Gráfico horario: solo horas con dato real
+  const H = D.hourly;
+  const X0 = 30, X1 = 790, Y0 = 20, Y1 = 140;
+  if (H.length) {
+    const step = (X1 - X0) / H.length, bw = step * 0.62;
+    const maxMm = Math.max(4, Math.ceil(Math.max(...H.map((h) => h.mm))));
+    $('chartBars').innerHTML = H.map((h, i) => {
+      const x = X0 + i * step + (step - bw) / 2, hgt = (h.prob / 100) * (Y1 - Y0);
+      return `<rect x="${x.toFixed(1)}" y="${(Y1 - hgt).toFixed(1)}" width="${bw.toFixed(1)}" height="${hgt.toFixed(1)}" rx="2" fill="url(#barGrad)"><title>${h.hour} h · ${h.prob}% · ${mm(h.mm)} mm</title></rect>`;
+    }).join('');
+    const pts = H.map((h, i) => [X0 + i * step + step / 2, Y1 - (h.mm / maxMm) * (Y1 - Y0)]);
+    $('chartLine').innerHTML = `<path d="${pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
+      pts.map((p, i) => H[i].mm >= 0.5 ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.5" fill="#E3B341"/>` : '').join('');
+    $('chartX').innerHTML = H.filter((_, i) => i % 3 === 0).map((h) => `<span>${esc(h.hour)}h</span>`).join('');
+    $('chartNote').textContent = `Línea dorada: escala hasta ${maxMm} mm por hora.` + (H.length < 24 ? ` Hay pronóstico para las próximas ${H.length} h.` : '');
+  } else {
+    $('chartNote').textContent = 'Sin pronóstico horario disponible en este momento.';
+  }
+
+  // Vecinos
+  $('nbrMeta').textContent = `viento ${D.now.wind_from} · ${D.now.wind_kmh} km/h`;
+  $('nbrList').innerHTML = D.neighbors.length ? D.neighbors.map((n) => `
+    <div class="nbr">
+      <div class="wind-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(${(n.wind_dir_deg ?? 0) + 180}deg);"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div>
+      <div><div class="name">${esc(n.name)} <span class="iata">${esc(n.code)}</span></div>
+        <div class="detail">${mm(n.distance_km)} km al ${esc(n.direction)} · viento ${n.wind_kmh} km/h del ${esc(n.wind_from)}${n.eta_min ? ` · llega en ~${n.eta_min} min` : ''}</div></div>
+      <div class="mm ${n.precip_mm > 0 ? 'wet' : ''}">${mm(n.precip_mm)} mm/h</div>
+    </div>`).join('') : '<div class="detail">Sin lectura de los pueblos vecinos en esta corrida.</div>';
+
+  // Pesos
+  const WCOL = ['var(--sky)', 'var(--rain)', 'var(--gold)'];
+  $('wBar').innerHTML = D.weights.map((w, i) => `<span style="width:${w.pct}%; background:${WCOL[i % 3]};"></span>`).join('');
+  $('wRows').innerHTML = D.weights.map((w, i) => `<div class="w-row"><i style="background:${WCOL[i % 3]};"></i><span class="nm">${esc(w.model)}</span><span class="pct">${String(w.pct).replace('.', ',')}%</span><span class="mae">error ${mm(w.mae)} mm</span></div>`).join('');
+
+  // Track record y pipeline
+  const T = D.track, P = D.pipeline;
+  const tile = (k, v, sub, cls = '') => `<div class="tile ${cls}"><div class="k">${k}</div><div class="v">${v}</div><div class="sub">${sub}</div></div>`;
+  $('trackTiles').innerHTML =
+    tile('Pronóstico acertado', '—', `Se publica desde el día 30 (hoy: día ${T.days_running})`) +
+    tile('Alertas enviadas', T.alerts_sent, 'desde que corre en GitHub') +
+    tile('Mejor modelo', esc(T.best_model || '—'), T.best_mae != null ? `error medio ${mm(T.best_mae)} mm por día` : '') +
+    tile('Días en marcha', T.days_running, 'cada hora, sin pausas', 'ok');
+  $('pipeTiles').innerHTML =
+    tile('Última corrida', esc(P.last_run_local || '—'), 'hora Córdoba', 'ok') +
+    tile('Consultas OK 24 h', `${P.ok_24h}<small>/${P.total_24h}</small>`, P.total_24h ? `${Math.round(100 * P.ok_24h / P.total_24h)}%` : '') +
+    tile('Generada', esc(D.generated_local), 'esta página') +
+    tile('Canales', 'Activos', 'Telegram automático', 'ok');
+  $('footUpdated').innerHTML = `<span style="font-family: var(--font-airport); text-transform: lowercase; letter-spacing: 0.08em;">lluvialocal · ${esc(D.location.code)}</span> · actualizado ${esc(D.generated_local)}`;
+
+  // Vista ilustrativa: las nubes se mueven hacia donde sopla el viento
+  const field = $('cloudField');
+  field.style.transform = `rotate(${(D.now.wind_dir_deg ?? 90) + 90}deg)`;
+  field.style.opacity = D.now.raining ? 0.9 : (D.next12.total_mm >= 1 ? 0.55 : 0.15);
+  $('rtTicks').innerHTML = '<span>ahora</span><span>+15</span><span>+30</span><span>+45</span><span>+1 h</span>';
+})();
+
+// Popovers de información
+(function () {
+  const CONTENT = {
+    ensemble: ['Ensemble ponderado', 'LluviaLocal no se queda con un solo modelo. Cada hora descarga los pronósticos de <strong>ECMWF</strong> (Europa), <strong>GFS</strong> (EE. UU.) e <strong>ICON</strong> (Alemania) y los compara con lo que <strong>realmente llovió</strong> en Miramar según ERA5. El que menos se equivocó pesa más. El "error" de cada uno es cuántos milímetros por día le erró en promedio.'],
+    nowcast: ['Pueblos vecinos', 'Muestra cuánto está lloviendo <strong>ahora</strong> en Balnearia, Marull y Altos de Chipión, y de dónde sopla el viento. Si el viento trae la lluvia de un pueblo vecino hacia Miramar, aparece cuánto tardaría en llegar.'],
+    pronostico: ['Cómo leer el pronóstico', '<code>mm</code> son los milímetros esperados en el día; <code>prob</code> es la probabilidad de que llueva. "Hoy" cuenta solo desde ahora. El estado indica a qué hora pega más fuerte. 5 mm deja calles mojadas; 15 mm o más ya es abundante.'],
+    hourly: ['Hora a hora', 'Las barras azules son la probabilidad de lluvia en cada hora; la línea dorada, cuántos milímetros se esperan. Menos de 2,5 mm en una hora es débil, de 2,5 a 7,5 es moderada y más es fuerte.'],
+    radar: ['Vista ilustrativa', 'Esto <strong>no es un radar real</strong>. Las nubes se mueven hacia donde sopla el viento en Miramar y se ven más densas cuando llueve o se espera lluvia. El radar real es un próximo paso.'],
+    track: ['Track record', 'La promesa es <strong>si digo que llueve, llueve</strong>, y por eso publicamos qué tan bien acertamos. El porcentaje de acierto se muestra recién con 30 días de datos, para no presumir con pocos casos.']
+  };
+  let current = null;
+  const close = () => { if (current) { current.remove(); current = null; document.querySelectorAll('.info-btn.open').forEach((b) => b.classList.remove('open')); } };
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.info-btn');
+    if (!btn) { if (!e.target.closest('.info-pop')) close(); return; }
+    const c = CONTENT[btn.dataset.info];
+    if (!c) return;
+    if (btn.classList.contains('open')) { close(); return; }
+    close();
+    const pop = document.createElement('div');
+    pop.className = 'info-pop';
+    pop.innerHTML = `<button class="close" aria-label="Cerrar">×</button><div class="k">${c[0]}</div><div>${c[1]}</div>`;
+    (btn.closest('.info-anchor') || btn.parentElement).appendChild(pop);
+    btn.classList.add('open');
+    current = pop;
+    pop.querySelector('.close').addEventListener('click', close);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+
+// Animación de la vista ilustrativa
+(function () {
+  const play = document.getElementById('rtPlay'), fill = document.getElementById('rtFill');
+  const clouds = document.querySelectorAll('.cloud');
+  let playing = true, progress = 0;
+  play.addEventListener('click', () => {
+    playing = !playing;
+    clouds.forEach((c) => { c.style.animationPlayState = playing ? 'running' : 'paused'; });
+    play.setAttribute('aria-label', playing ? 'Pausar animación' : 'Reanudar animación');
+    play.innerHTML = playing
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  });
+  setInterval(() => { if (playing) { progress = (progress + 0.6) % 101; fill.style.width = progress + '%'; } }, 100);
+})();
+
+// Sidebar: marca la sección en vista
+(function () {
+  const links = document.querySelectorAll('.sb-item[data-anchor]');
+  const secs = Array.from(links).map((a) => document.getElementById(a.dataset.anchor)).filter(Boolean);
+  if (!('IntersectionObserver' in window)) return;
+  const obs = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (e.isIntersecting) links.forEach((a) => a.classList.toggle('active', a.dataset.anchor === e.target.id));
+  }), { rootMargin: '-30% 0px -60% 0px' });
+  secs.forEach((s) => obs.observe(s));
+})();
+
+// Split-flap (tablero de aeropuerto) para el número principal
+(function () {
+  const POOL = '0123456789,'.split('');
+  document.querySelectorAll('.flap[data-flap]').forEach((el) => {
+    const target = el.dataset.flap.split('');
+    const hot = el.dataset.flapHot === 'all';
+    el.innerHTML = '';
+    target.forEach((ch, i) => {
+      const c = document.createElement('span');
+      c.className = 'flap-cell' + (hot ? ' hot' : '');
+      c.textContent = POOL[Math.floor(Math.random() * POOL.length)];
+      el.appendChild(c);
+      let n = 0;
+      const total = 7 + Math.floor(Math.random() * 5) + i * 2;
+      const iv = setInterval(() => {
+        n++;
+        c.textContent = n >= total ? ch : POOL[Math.floor(Math.random() * POOL.length)];
+        c.classList.add('tick');
+        setTimeout(() => c.classList.remove('tick'), 60);
+        if (n >= total) clearInterval(iv);
+      }, 60);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T09:45:11Z",
- "generated_local": "mar 24 nov · 06:45",
+ "generated_at": "2026-11-24T10:07:28Z",
+ "generated_local": "mar 24 nov · 07:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,34 +8,30 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 13,
-  "gust_kmh": 22,
-  "wind_dir_deg": 173,
+  "wind_kmh": 14,
+  "gust_kmh": 23,
+  "wind_dir_deg": 172,
   "wind_from": "S"
  },
  "next12": {
-  "total_mm": 0.3,
-  "prob": 94,
-  "spread": [
-   0.0,
-   0.1,
-   0.5
-  ]
+  "total_mm": 0.0,
+  "prob": 0,
+  "spread": []
  },
  "headline": {
   "title": "Sin lluvia en las próximas 12 h",
   "sub": "No se espera lluvia en los próximos días."
  },
  "scene": "cloudy",
- "night": true,
+ "night": false,
  "ground": null,
  "days": [
   {
    "code": "hoy",
    "label": "Hoy",
    "date": "24 nov",
-   "mm": 0.4,
-   "prob": 63,
+   "mm": 0.1,
+   "prob": 52,
    "gust": 40,
    "cond": "Lluvia posible",
    "state": "maybe",
@@ -80,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "06",
-   "mm": 0.26,
-   "prob": 63
-  },
   {
    "hour": "07",
    "mm": 0.06,
@@ -199,6 +190,11 @@
    "hour": "05",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "06",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -218,7 +214,7 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 11,
+   "wind_kmh": 12,
    "wind_dir_deg": 178,
    "wind_from": "S",
    "precip_mm": 0,
@@ -274,9 +270,9 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "06:45",
-  "ok_24h": 604,
-  "total_24h": 664
+  "last_run_local": "07:07",
+  "ok_24h": 624,
+  "total_24h": 684
  },
  "track": {
   "days_running": 1,

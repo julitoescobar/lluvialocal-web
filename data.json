@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T15:07:32Z",
- "generated_local": "mar 24 nov · 12:07",
+ "generated_at": "2026-11-24T15:37:29Z",
+ "generated_local": "mar 24 nov · 12:37",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,8 +8,8 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 14,
-  "gust_kmh": 29,
+  "wind_kmh": 16,
+  "gust_kmh": 31,
   "wind_dir_deg": 179,
   "wind_from": "S"
  },
@@ -203,8 +203,8 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 14,
-   "wind_dir_deg": 177,
+   "wind_kmh": 15,
+   "wind_dir_deg": 179,
    "wind_from": "S",
    "precip_mm": 0,
    "eta_min": null
@@ -214,9 +214,9 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 16,
-   "wind_dir_deg": 167,
-   "wind_from": "SSE",
+   "wind_kmh": 17,
+   "wind_dir_deg": 170,
+   "wind_from": "S",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -226,7 +226,7 @@
    "distance_km": 32.4,
    "direction": "E",
    "wind_kmh": 16,
-   "wind_dir_deg": 175,
+   "wind_dir_deg": 176,
    "wind_from": "S",
    "precip_mm": 0,
    "eta_min": null
@@ -250,19 +250,13 @@
   }
  ],
  "alerts": {
-  "recent": [
-   {
-    "time": "12:21",
-    "title": "🌤️ Miramar de Ansenuza: paró de llover",
-    "body": "🌤️ Miramar de Ansenuza: paró de llover\nCorrección: a las 09:07 avisamos 13,0 mm hasta las 22 h.\nEn el pueblo ya no llueve: la lluvia se cortó antes de lo previsto.\nLos modelos todavía marcan 13,2 mm para las próximas horas, pero hoy vienen exagerando. Si vuelve a llover, avisamos."
-   }
-  ],
+  "recent": [],
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "12:07",
-  "ok_24h": 700,
-  "total_24h": 760
+  "last_run_local": "12:37",
+  "ok_24h": 680,
+  "total_24h": 740
  },
  "track": {
   "days_running": 2,

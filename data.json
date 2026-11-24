@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T02:37:26Z",
- "generated_local": "lun 23 nov · 23:37",
+ "generated_at": "2026-11-24T03:07:29Z",
+ "generated_local": "mar 24 nov · 00:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,9 +8,9 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 15,
-  "gust_kmh": 30,
-  "wind_dir_deg": 124,
+  "wind_kmh": 13,
+  "gust_kmh": 28,
+  "wind_dir_deg": 139,
   "wind_from": "SE"
  },
  "next12": {
@@ -23,8 +23,8 @@
   ]
  },
  "headline": {
-  "title": "Llueve desde mañana a las 02 h",
-  "sub": "Hasta mañana a las 08 h aprox. Total esperado: 1,2 mm."
+  "title": "Llueve desde las 02 h",
+  "sub": "Hasta las 08 h aprox. Total esperado: 1,2 mm."
  },
  "scene": "soon",
  "night": true,
@@ -33,18 +33,6 @@
   {
    "code": "hoy",
    "label": "Hoy",
-   "date": "23 nov",
-   "mm": 0.0,
-   "prob": 45,
-   "gust": 38,
-   "cond": "Lluvia posible",
-   "state": "maybe",
-   "status": "Posible",
-   "partial": true
-  },
-  {
-   "code": "d+1",
-   "label": "Martes",
    "date": "24 nov",
    "mm": 1.7,
    "prob": 70,
@@ -52,10 +40,10 @@
    "cond": "Lluvia débil",
    "state": "rain",
    "status": "Lluvia · pico 07 h",
-   "partial": false
+   "partial": true
   },
   {
-   "code": "d+2",
+   "code": "d+1",
    "label": "Miércoles",
    "date": "25 nov",
    "mm": 0.0,
@@ -67,7 +55,7 @@
    "partial": false
   },
   {
-   "code": "d+3",
+   "code": "d+2",
    "label": "Jueves",
    "date": "26 nov",
    "mm": 1.1,
@@ -77,14 +65,21 @@
    "state": "rain",
    "status": "Lluvia · pico 16 h",
    "partial": false
+  },
+  {
+   "code": "d+3",
+   "label": "Viernes",
+   "date": "27 nov",
+   "mm": 0.8,
+   "prob": 28,
+   "gust": 52,
+   "cond": "Lluvia posible",
+   "state": "maybe",
+   "status": "Posible",
+   "partial": false
   }
  ],
  "hourly": [
-  {
-   "hour": "23",
-   "mm": 0.0,
-   "prob": 45
-  },
   {
    "hour": "00",
    "mm": 0.17,
@@ -199,6 +194,11 @@
    "hour": "22",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "23",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -207,8 +207,8 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 9,
-   "wind_dir_deg": 110,
+   "wind_kmh": 7,
+   "wind_dir_deg": 118,
    "wind_from": "ESE",
    "precip_mm": 0,
    "eta_min": null
@@ -218,9 +218,9 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 9,
-   "wind_dir_deg": 137,
-   "wind_from": "SE",
+   "wind_kmh": 8,
+   "wind_dir_deg": 156,
+   "wind_from": "SSE",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -229,9 +229,9 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 12,
-   "wind_dir_deg": 112,
-   "wind_from": "ESE",
+   "wind_kmh": 10,
+   "wind_dir_deg": 131,
+   "wind_from": "SE",
    "precip_mm": 0,
    "eta_min": null
   }
@@ -274,9 +274,9 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "23:37",
-  "ok_24h": 340,
-  "total_24h": 364
+  "last_run_local": "00:07",
+  "ok_24h": 356,
+  "total_24h": 384
  },
  "track": {
   "days_running": 1,

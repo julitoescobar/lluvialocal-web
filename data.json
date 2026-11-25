@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T23:37:27Z",
- "generated_local": "mar 24 nov · 20:37",
+ "generated_at": "2026-11-25T00:07:30Z",
+ "generated_local": "mar 24 nov · 21:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -9,9 +9,9 @@
   "precip_mm": 0.0,
   "raining": false,
   "wind_kmh": 6,
-  "gust_kmh": 13,
-  "wind_dir_deg": 159,
-  "wind_from": "SSE"
+  "gust_kmh": 10,
+  "wind_dir_deg": 170,
+  "wind_from": "S"
  },
  "next12": {
   "total_mm": 0.0,
@@ -43,7 +43,7 @@
    "label": "Miércoles",
    "date": "25 nov",
    "mm": 0.0,
-   "prob": 0,
+   "prob": 2,
    "gust": 34,
    "cond": "Sin lluvia",
    "state": "dry",
@@ -55,7 +55,7 @@
    "label": "Jueves",
    "date": "26 nov",
    "mm": 0.2,
-   "prob": 19,
+   "prob": 17,
    "gust": 45,
    "cond": "Sin lluvia",
    "state": "dry",
@@ -67,7 +67,7 @@
    "label": "Viernes",
    "date": "27 nov",
    "mm": 0.0,
-   "prob": 15,
+   "prob": 14,
    "gust": 44,
    "cond": "Sin lluvia",
    "state": "dry",
@@ -76,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "20",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "21",
    "mm": 0.0,
@@ -154,45 +149,50 @@
   {
    "hour": "11",
    "mm": 0.0,
-   "prob": 0
+   "prob": 1
   },
   {
    "hour": "12",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "13",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "14",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "15",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "16",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "17",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "18",
    "mm": 0.0,
-   "prob": 0
+   "prob": 2
   },
   {
    "hour": "19",
+   "mm": 0.0,
+   "prob": 1
+  },
+  {
+   "hour": "20",
    "mm": 0.0,
    "prob": 0
   }
@@ -214,8 +214,8 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 7,
-   "wind_dir_deg": 160,
+   "wind_kmh": 8,
+   "wind_dir_deg": 161,
    "wind_from": "SSE",
    "precip_mm": 0,
    "eta_min": null
@@ -226,7 +226,7 @@
    "distance_km": 32.4,
    "direction": "E",
    "wind_kmh": 6,
-   "wind_dir_deg": 153,
+   "wind_dir_deg": 159,
    "wind_from": "SSE",
    "precip_mm": 0,
    "eta_min": null
@@ -254,9 +254,9 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "20:37",
-  "ok_24h": 960,
-  "total_24h": 1020
+  "last_run_local": "21:07",
+  "ok_24h": 940,
+  "total_24h": 1000
  },
  "track": {
   "days_running": 2,

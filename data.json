@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-25T23:34:15Z",
- "generated_local": "mié 25 nov · 20:34",
+ "generated_at": "2026-11-25T23:37:26Z",
+ "generated_local": "mié 25 nov · 20:37",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -254,7 +254,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "20:34",
+  "last_run_local": "20:37",
   "ok_24h": 915,
   "total_24h": 1000
  },

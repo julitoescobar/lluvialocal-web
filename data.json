@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-25T13:07:32Z",
- "generated_local": "mié 25 nov · 10:07",
+ "generated_at": "2026-11-25T13:37:31Z",
+ "generated_local": "mié 25 nov · 10:37",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,10 +8,10 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 5,
+  "wind_kmh": 4,
   "gust_kmh": 16,
-  "wind_dir_deg": 149,
-  "wind_from": "SSE"
+  "wind_dir_deg": 131,
+  "wind_from": "SE"
  },
  "next12": {
   "total_mm": 0.0,
@@ -42,24 +42,24 @@
    "code": "d+1",
    "label": "Jueves",
    "date": "26 nov",
-   "mm": 0.3,
+   "mm": 0.0,
    "prob": 14,
    "gust": 37,
-   "cond": "Lluvia posible",
-   "state": "maybe",
-   "status": "Posible",
+   "cond": "Sin lluvia",
+   "state": "dry",
+   "status": "Seco",
    "partial": false
   },
   {
    "code": "d+2",
    "label": "Viernes",
    "date": "27 nov",
-   "mm": 0.0,
+   "mm": 0.3,
    "prob": 18,
    "gust": 40,
-   "cond": "Sin lluvia",
-   "state": "dry",
-   "status": "Seco",
+   "cond": "Lluvia posible",
+   "state": "maybe",
+   "status": "Posible",
    "partial": false
   },
   {
@@ -68,7 +68,7 @@
    "date": "28 nov",
    "mm": 0.0,
    "prob": 0,
-   "gust": 39,
+   "gust": 31,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -203,8 +203,8 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 3,
-   "wind_dir_deg": 165,
+   "wind_kmh": 2,
+   "wind_dir_deg": 163,
    "wind_from": "SSE",
    "precip_mm": 0,
    "eta_min": null
@@ -215,7 +215,7 @@
    "distance_km": 16.8,
    "direction": "OSO",
    "wind_kmh": 4,
-   "wind_dir_deg": 164,
+   "wind_dir_deg": 152,
    "wind_from": "SSE",
    "precip_mm": 0,
    "eta_min": null
@@ -225,9 +225,9 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 4,
-   "wind_dir_deg": 124,
-   "wind_from": "SE",
+   "wind_kmh": 3,
+   "wind_dir_deg": 103,
+   "wind_from": "ESE",
    "precip_mm": 0,
    "eta_min": null
   }
@@ -254,7 +254,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "10:07",
+  "last_run_local": "10:37",
   "ok_24h": 936,
   "total_24h": 1000
  },

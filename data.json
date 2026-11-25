@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-25T14:37:30Z",
- "generated_local": "mié 25 nov · 11:37",
+ "generated_at": "2026-11-25T15:07:33Z",
+ "generated_local": "mié 25 nov · 12:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,10 +8,10 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 4,
+  "wind_kmh": 5,
   "gust_kmh": 15,
-  "wind_dir_deg": 75,
-  "wind_from": "ENE"
+  "wind_dir_deg": 56,
+  "wind_from": "NE"
  },
  "next12": {
   "total_mm": 0.0,
@@ -76,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "11",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "12",
    "mm": 0.0,
@@ -195,6 +190,11 @@
    "hour": "10",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "11",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -204,7 +204,7 @@
    "distance_km": 10.9,
    "direction": "S",
    "wind_kmh": 2,
-   "wind_dir_deg": 97,
+   "wind_dir_deg": 90,
    "wind_from": "E",
    "precip_mm": 0,
    "eta_min": null
@@ -214,9 +214,9 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 3,
-   "wind_dir_deg": 82,
-   "wind_from": "E",
+   "wind_kmh": 4,
+   "wind_dir_deg": 61,
+   "wind_from": "ENE",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -226,7 +226,7 @@
    "distance_km": 32.4,
    "direction": "E",
    "wind_kmh": 4,
-   "wind_dir_deg": 83,
+   "wind_dir_deg": 90,
    "wind_from": "E",
    "precip_mm": 0,
    "eta_min": null
@@ -254,7 +254,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "11:37",
+  "last_run_local": "12:07",
   "ok_24h": 956,
   "total_24h": 1020
  },

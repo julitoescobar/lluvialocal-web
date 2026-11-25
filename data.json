@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-25T11:37:28Z",
- "generated_local": "mié 25 nov · 08:37",
+ "generated_at": "2026-11-25T12:07:59Z",
+ "generated_local": "mié 25 nov · 09:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,7 +8,7 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 12,
+  "wind_kmh": 11,
   "gust_kmh": 20,
   "wind_dir_deg": 140,
   "wind_from": "SE"
@@ -31,7 +31,7 @@
    "label": "Hoy",
    "date": "25 nov",
    "mm": 0.0,
-   "prob": 1,
+   "prob": 0,
    "gust": 28,
    "cond": "Sin lluvia",
    "state": "dry",
@@ -43,8 +43,8 @@
    "label": "Jueves",
    "date": "26 nov",
    "mm": 0.3,
-   "prob": 10,
-   "gust": 33,
+   "prob": 14,
+   "gust": 37,
    "cond": "Lluvia posible",
    "state": "maybe",
    "status": "Posible",
@@ -55,8 +55,8 @@
    "label": "Viernes",
    "date": "27 nov",
    "mm": 0.0,
-   "prob": 19,
-   "gust": 32,
+   "prob": 18,
+   "gust": 40,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -76,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "08",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "09",
    "mm": 0.0,
@@ -109,17 +104,17 @@
   {
    "hour": "14",
    "mm": 0.0,
-   "prob": 1
+   "prob": 0
   },
   {
    "hour": "15",
    "mm": 0.0,
-   "prob": 1
+   "prob": 0
   },
   {
    "hour": "16",
    "mm": 0.0,
-   "prob": 1
+   "prob": 0
   },
   {
    "hour": "17",
@@ -195,6 +190,11 @@
    "hour": "07",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "08",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -204,7 +204,7 @@
    "distance_km": 10.9,
    "direction": "S",
    "wind_kmh": 7,
-   "wind_dir_deg": 137,
+   "wind_dir_deg": 132,
    "wind_from": "SE",
    "precip_mm": 0,
    "eta_min": null
@@ -214,8 +214,8 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 9,
-   "wind_dir_deg": 144,
+   "wind_kmh": 8,
+   "wind_dir_deg": 139,
    "wind_from": "SE",
    "precip_mm": 0,
    "eta_min": null
@@ -225,8 +225,8 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 9,
-   "wind_dir_deg": 130,
+   "wind_kmh": 8,
+   "wind_dir_deg": 134,
    "wind_from": "SE",
    "precip_mm": 0,
    "eta_min": null
@@ -254,12 +254,12 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "08:37",
+  "last_run_local": "09:07",
   "ok_24h": 936,
   "total_24h": 1000
  },
  "track": {
-  "days_running": 2,
+  "days_running": 3,
   "alerts_sent": 3,
   "best_model": "ECMWF",
   "best_mae": 2.48

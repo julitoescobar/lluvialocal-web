@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-26T00:37:30Z",
- "generated_local": "mié 25 nov · 21:37",
+ "generated_at": "2026-11-26T01:07:25Z",
+ "generated_local": "mié 25 nov · 22:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,10 +8,10 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 13,
-  "gust_kmh": 22,
-  "wind_dir_deg": 130,
-  "wind_from": "SE"
+  "wind_kmh": 12,
+  "gust_kmh": 20,
+  "wind_dir_deg": 118,
+  "wind_from": "ESE"
  },
  "next12": {
   "total_mm": 0.0,
@@ -32,7 +32,7 @@
    "date": "25 nov",
    "mm": 0.0,
    "prob": 0,
-   "gust": 17,
+   "gust": 25,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -44,7 +44,7 @@
    "date": "26 nov",
    "mm": 1.6,
    "prob": 25,
-   "gust": 34,
+   "gust": 32,
    "cond": "Lluvia débil",
    "state": "rain",
    "status": "Lluvia · pico 13 h",
@@ -56,7 +56,7 @@
    "date": "27 nov",
    "mm": 1.7,
    "prob": 30,
-   "gust": 36,
+   "gust": 37,
    "cond": "Lluvia débil",
    "state": "rain",
    "status": "Lluvia · pico 10 h",
@@ -76,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "21",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "22",
    "mm": 0.0,
@@ -195,6 +190,11 @@
    "hour": "20",
    "mm": 0.0,
    "prob": 6
+  },
+  {
+   "hour": "21",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -203,9 +203,9 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 11,
-   "wind_dir_deg": 127,
-   "wind_from": "SE",
+   "wind_kmh": 12,
+   "wind_dir_deg": 120,
+   "wind_from": "ESE",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -214,8 +214,8 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 9,
-   "wind_dir_deg": 134,
+   "wind_kmh": 10,
+   "wind_dir_deg": 125,
    "wind_from": "SE",
    "precip_mm": 0,
    "eta_min": null
@@ -225,9 +225,9 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 13,
-   "wind_dir_deg": 129,
-   "wind_from": "SE",
+   "wind_kmh": 12,
+   "wind_dir_deg": 121,
+   "wind_from": "ESE",
    "precip_mm": 0,
    "eta_min": null
   }
@@ -254,7 +254,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "21:37",
+  "last_run_local": "22:07",
   "ok_24h": 915,
   "total_24h": 1000
  },

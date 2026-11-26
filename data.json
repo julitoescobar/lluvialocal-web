@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-26T10:38:43Z",
- "generated_local": "jue 26 nov · 07:38",
+ "generated_at": "2026-11-26T11:11:41Z",
+ "generated_local": "jue 26 nov · 08:11",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -9,8 +9,8 @@
   "precip_mm": 0.0,
   "raining": false,
   "wind_kmh": 15,
-  "gust_kmh": 24,
-  "wind_dir_deg": 96,
+  "gust_kmh": 25,
+  "wind_dir_deg": 95,
   "wind_from": "E"
  },
  "next12": {
@@ -24,7 +24,7 @@
  },
  "headline": {
   "title": "Sin lluvia en las próximas 12 h",
-  "sub": "Próxima lluvia: viernes 27 nov, 1,4 mm (32 %)."
+  "sub": "Próxima lluvia: viernes 27 nov, 1,3 mm (32 %)."
  },
  "scene": "clear",
  "night": false,
@@ -34,7 +34,7 @@
    "code": "hoy",
    "label": "Hoy",
    "date": "26 nov",
-   "mm": 1.6,
+   "mm": 1.5,
    "prob": 33,
    "gust": 32,
    "cond": "Lluvia débil",
@@ -46,12 +46,12 @@
    "code": "d+1",
    "label": "Viernes",
    "date": "27 nov",
-   "mm": 1.4,
+   "mm": 1.3,
    "prob": 32,
    "gust": 34,
    "cond": "Lluvia débil",
    "state": "rain",
-   "status": "Lluvia · pico 05 h",
+   "status": "Lluvia · pico 10 h",
    "partial": false
   },
   {
@@ -60,7 +60,7 @@
    "date": "28 nov",
    "mm": 0.0,
    "prob": 0,
-   "gust": 33,
+   "gust": 30,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -72,7 +72,7 @@
    "date": "29 nov",
    "mm": 0.0,
    "prob": 0,
-   "gust": 34,
+   "gust": 32,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -80,11 +80,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "07",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "08",
    "mm": 0.0,
@@ -97,12 +92,12 @@
   },
   {
    "hour": "10",
-   "mm": 0.07,
+   "mm": 0.0,
    "prob": 8
   },
   {
    "hour": "11",
-   "mm": 0.14,
+   "mm": 0.11,
    "prob": 11
   },
   {
@@ -192,13 +187,18 @@
   },
   {
    "hour": "05",
-   "mm": 0.24,
+   "mm": 0.1,
    "prob": 17
   },
   {
    "hour": "06",
    "mm": 0.1,
    "prob": 20
+  },
+  {
+   "hour": "07",
+   "mm": 0.14,
+   "prob": 24
   }
  ],
  "neighbors": [
@@ -207,8 +207,8 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 11,
-   "wind_dir_deg": 98,
+   "wind_kmh": 10,
+   "wind_dir_deg": 101,
    "wind_from": "E",
    "precip_mm": 0,
    "eta_min": null
@@ -219,7 +219,7 @@
    "distance_km": 16.8,
    "direction": "OSO",
    "wind_kmh": 12,
-   "wind_dir_deg": 105,
+   "wind_dir_deg": 104,
    "wind_from": "ESE",
    "precip_mm": 0,
    "eta_min": null
@@ -258,7 +258,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "07:38",
+  "last_run_local": "08:11",
   "ok_24h": 919,
   "total_24h": 1000
  },

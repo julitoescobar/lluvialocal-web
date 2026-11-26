@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-26T16:37:28Z",
- "generated_local": "jue 26 nov · 13:37",
+ "generated_at": "2026-11-26T17:07:27Z",
+ "generated_local": "jue 26 nov · 14:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,10 +8,10 @@
  "now": {
   "precip_mm": 0.1,
   "raining": false,
-  "wind_kmh": 10,
-  "gust_kmh": 24,
-  "wind_dir_deg": 46,
-  "wind_from": "NE"
+  "wind_kmh": 12,
+  "gust_kmh": 23,
+  "wind_dir_deg": 66,
+  "wind_from": "ENE"
  },
  "next12": {
   "total_mm": 0.9,
@@ -34,8 +34,8 @@
    "code": "hoy",
    "label": "Hoy",
    "date": "26 nov",
-   "mm": 1.5,
-   "prob": 30,
+   "mm": 1.3,
+   "prob": 29,
    "gust": 36,
    "cond": "Lluvia débil",
    "state": "rain",
@@ -48,7 +48,7 @@
    "date": "27 nov",
    "mm": 1.9,
    "prob": 31,
-   "gust": 34,
+   "gust": 31,
    "cond": "Lluvia débil",
    "state": "rain",
    "status": "Lluvia · pico 10 h",
@@ -80,11 +80,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "13",
-   "mm": 0.19,
-   "prob": 14
-  },
   {
    "hour": "14",
    "mm": 0.27,
@@ -199,6 +194,11 @@
    "hour": "12",
    "mm": 0.52,
    "prob": 24
+  },
+  {
+   "hour": "13",
+   "mm": 0.0,
+   "prob": 21
   }
  ],
  "neighbors": [
@@ -208,8 +208,8 @@
    "distance_km": 10.9,
    "direction": "S",
    "wind_kmh": 12,
-   "wind_dir_deg": 22,
-   "wind_from": "NNE",
+   "wind_dir_deg": 38,
+   "wind_from": "NE",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -219,8 +219,8 @@
    "distance_km": 16.8,
    "direction": "OSO",
    "wind_kmh": 11,
-   "wind_dir_deg": 33,
-   "wind_from": "NNE",
+   "wind_dir_deg": 56,
+   "wind_from": "NE",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -229,9 +229,9 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 15,
-   "wind_dir_deg": 29,
-   "wind_from": "NNE",
+   "wind_kmh": 16,
+   "wind_dir_deg": 51,
+   "wind_from": "NE",
    "precip_mm": 0,
    "eta_min": null
   }
@@ -258,9 +258,9 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "13:37",
-  "ok_24h": 911,
-  "total_24h": 1000
+  "last_run_local": "14:07",
+  "ok_24h": 927,
+  "total_24h": 1016
  },
  "track": {
   "days_running": 4,

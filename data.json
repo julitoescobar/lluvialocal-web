@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-27T12:40:07Z",
- "generated_local": "vie 27 nov · 09:40",
+ "generated_at": "2026-11-27T13:07:29Z",
+ "generated_local": "vie 27 nov · 10:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,9 +8,9 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 14,
-  "gust_kmh": 29,
-  "wind_dir_deg": 350,
+  "wind_kmh": 13,
+  "gust_kmh": 30,
+  "wind_dir_deg": 360,
   "wind_from": "N"
  },
  "next12": {
@@ -22,7 +22,7 @@
   "title": "Sin lluvia en las próximas 12 h",
   "sub": "No se espera lluvia en los próximos días."
  },
- "scene": "cloudy",
+ "scene": "clear",
  "night": false,
  "ground": null,
  "days": [
@@ -31,11 +31,11 @@
    "label": "Hoy",
    "date": "27 nov",
    "mm": 0.0,
-   "prob": 34,
+   "prob": 29,
    "gust": 35,
-   "cond": "Lluvia posible",
-   "state": "maybe",
-   "status": "Posible",
+   "cond": "Sin lluvia",
+   "state": "dry",
+   "status": "Seco",
    "partial": true
   },
   {
@@ -76,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "09",
-   "mm": 0.04,
-   "prob": 34
-  },
   {
    "hour": "10",
    "mm": 0.0,
@@ -195,6 +190,11 @@
    "hour": "08",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "09",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -204,7 +204,7 @@
    "distance_km": 10.9,
    "direction": "S",
    "wind_kmh": 12,
-   "wind_dir_deg": 344,
+   "wind_dir_deg": 347,
    "wind_from": "NNO",
    "precip_mm": 0,
    "eta_min": null
@@ -215,7 +215,7 @@
    "distance_km": 16.8,
    "direction": "OSO",
    "wind_kmh": 12,
-   "wind_dir_deg": 359,
+   "wind_dir_deg": 3,
    "wind_from": "N",
    "precip_mm": 0,
    "eta_min": null
@@ -226,7 +226,7 @@
    "distance_km": 32.4,
    "direction": "E",
    "wind_kmh": 13,
-   "wind_dir_deg": 358,
+   "wind_dir_deg": 354,
    "wind_from": "N",
    "precip_mm": 0,
    "eta_min": null
@@ -254,9 +254,9 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "09:40",
-  "ok_24h": 890,
-  "total_24h": 1020
+  "last_run_local": "10:07",
+  "ok_24h": 902,
+  "total_24h": 1036
  },
  "track": {
   "days_running": 5,

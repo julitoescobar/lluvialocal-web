@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-27T23:37:27Z",
- "generated_local": "vie 27 nov · 20:37",
+ "generated_at": "2026-11-28T00:11:53Z",
+ "generated_local": "vie 27 nov · 21:11",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,9 +8,9 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 2,
-  "gust_kmh": 6,
-  "wind_dir_deg": 36,
+  "wind_kmh": 3,
+  "gust_kmh": 5,
+  "wind_dir_deg": 40,
   "wind_from": "NE"
  },
  "next12": {
@@ -32,7 +32,7 @@
    "date": "27 nov",
    "mm": 0.0,
    "prob": 0,
-   "gust": 17,
+   "gust": 10,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -55,7 +55,7 @@
    "label": "Domingo",
    "date": "29 nov",
    "mm": 0.0,
-   "prob": 1,
+   "prob": 2,
    "gust": 30,
    "cond": "Sin lluvia",
    "state": "dry",
@@ -66,21 +66,16 @@
    "code": "d+3",
    "label": "Lunes",
    "date": "30 nov",
-   "mm": 0.0,
-   "prob": 5,
-   "gust": 34,
-   "cond": "Sin lluvia",
-   "state": "dry",
-   "status": "Seco",
+   "mm": 0.8,
+   "prob": 11,
+   "gust": 35,
+   "cond": "Lluvia posible",
+   "state": "maybe",
+   "status": "Posible",
    "partial": false
   }
  ],
  "hourly": [
-  {
-   "hour": "20",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "21",
    "mm": 0.0,
@@ -195,6 +190,11 @@
    "hour": "19",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "20",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -204,7 +204,7 @@
    "distance_km": 10.9,
    "direction": "S",
    "wind_kmh": 4,
-   "wind_dir_deg": 29,
+   "wind_dir_deg": 27,
    "wind_from": "NNE",
    "precip_mm": 0,
    "eta_min": null
@@ -214,8 +214,8 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 6,
-   "wind_dir_deg": 23,
+   "wind_kmh": 5,
+   "wind_dir_deg": 18,
    "wind_from": "NNE",
    "precip_mm": 0,
    "eta_min": null
@@ -226,8 +226,8 @@
    "distance_km": 32.4,
    "direction": "E",
    "wind_kmh": 1,
-   "wind_dir_deg": 27,
-   "wind_from": "NNE",
+   "wind_dir_deg": 11,
+   "wind_from": "N",
    "precip_mm": 0,
    "eta_min": null
   }
@@ -254,7 +254,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "20:37",
+  "last_run_local": "21:11",
   "ok_24h": 816,
   "total_24h": 1020
  },

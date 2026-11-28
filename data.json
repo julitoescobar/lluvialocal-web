@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-28T11:38:41Z",
- "generated_local": "sáb 28 nov · 08:38",
+ "generated_at": "2026-11-28T12:07:27Z",
+ "generated_local": "sáb 28 nov · 09:07",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,10 +8,10 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 4,
-  "gust_kmh": 13,
-  "wind_dir_deg": 17,
-  "wind_from": "NNE"
+  "wind_kmh": 8,
+  "gust_kmh": 17,
+  "wind_dir_deg": 8,
+  "wind_from": "N"
  },
  "next12": {
   "total_mm": 0.0,
@@ -20,7 +20,7 @@
  },
  "headline": {
   "title": "Sin lluvia en las próximas 12 h",
-  "sub": "Próxima lluvia: martes 1 dic, 14,4 mm (81 %)."
+  "sub": "Próxima lluvia: martes 1 dic, 14,4 mm (80 %)."
  },
  "scene": "clear",
  "night": false,
@@ -44,7 +44,7 @@
    "date": "29 nov",
    "mm": 0.0,
    "prob": 0,
-   "gust": 29,
+   "gust": 32,
    "cond": "Sin lluvia",
    "state": "dry",
    "status": "Seco",
@@ -55,7 +55,7 @@
    "label": "Lunes",
    "date": "30 nov",
    "mm": 0.0,
-   "prob": 9,
+   "prob": 7,
    "gust": 33,
    "cond": "Sin lluvia",
    "state": "dry",
@@ -67,8 +67,8 @@
    "label": "Martes",
    "date": "1 dic",
    "mm": 14.4,
-   "prob": 81,
-   "gust": 43,
+   "prob": 80,
+   "gust": 52,
    "cond": "Lluvia moderada",
    "state": "rain",
    "status": "Lluvia · pico 08 h",
@@ -76,11 +76,6 @@
   }
  ],
  "hourly": [
-  {
-   "hour": "08",
-   "mm": 0.0,
-   "prob": 0
-  },
   {
    "hour": "09",
    "mm": 0.0,
@@ -195,6 +190,11 @@
    "hour": "07",
    "mm": 0.0,
    "prob": 0
+  },
+  {
+   "hour": "08",
+   "mm": 0.0,
+   "prob": 0
   }
  ],
  "neighbors": [
@@ -203,9 +203,9 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 2,
-   "wind_dir_deg": 38,
-   "wind_from": "NE",
+   "wind_kmh": 4,
+   "wind_dir_deg": 12,
+   "wind_from": "NNE",
    "precip_mm": 0,
    "eta_min": null
   },
@@ -214,8 +214,8 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 3,
-   "wind_dir_deg": 353,
+   "wind_kmh": 5,
+   "wind_dir_deg": 8,
    "wind_from": "N",
    "precip_mm": 0,
    "eta_min": null
@@ -225,8 +225,8 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 7,
-   "wind_dir_deg": 50,
+   "wind_kmh": 8,
+   "wind_dir_deg": 41,
    "wind_from": "NE",
    "precip_mm": 0,
    "eta_min": null
@@ -254,12 +254,12 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "08:38",
+  "last_run_local": "09:07",
   "ok_24h": 852,
-  "total_24h": 1020
+  "total_24h": 1016
  },
  "track": {
-  "days_running": 5,
+  "days_running": 6,
   "alerts_sent": 3,
   "best_model": "ICON",
   "best_mae": 3.04

@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-28T05:09:06Z",
- "generated_local": "sáb 28 nov · 02:09",
+ "generated_at": "2026-11-28T05:37:27Z",
+ "generated_local": "sáb 28 nov · 02:37",
  "location": {
   "name": "Miramar de Ansenuza",
   "code": "mir"
@@ -8,9 +8,9 @@
  "now": {
   "precip_mm": 0.0,
   "raining": false,
-  "wind_kmh": 6,
-  "gust_kmh": 10,
-  "wind_dir_deg": 297,
+  "wind_kmh": 7,
+  "gust_kmh": 12,
+  "wind_dir_deg": 293,
   "wind_from": "WNW"
  },
  "next12": {
@@ -20,7 +20,7 @@
  },
  "headline": {
   "title": "Sin lluvia en las próximas 12 h",
-  "sub": "Próxima lluvia: martes 1 dic, 15,0 mm (78 %)."
+  "sub": "Próxima lluvia: martes 1 dic, 12,1 mm (78 %)."
  },
  "scene": "clear",
  "night": true,
@@ -54,19 +54,19 @@
    "code": "d+2",
    "label": "Lunes",
    "date": "30 nov",
-   "mm": 0.8,
+   "mm": 0.0,
    "prob": 9,
-   "gust": 35,
-   "cond": "Lluvia posible",
-   "state": "maybe",
-   "status": "Posible",
+   "gust": 32,
+   "cond": "Sin lluvia",
+   "state": "dry",
+   "status": "Seco",
    "partial": false
   },
   {
    "code": "d+3",
    "label": "Martes",
    "date": "1 dic",
-   "mm": 15.0,
+   "mm": 12.1,
    "prob": 78,
    "gust": 45,
    "cond": "Lluvia moderada",
@@ -203,8 +203,8 @@
    "code": "bal",
    "distance_km": 10.9,
    "direction": "S",
-   "wind_kmh": 6,
-   "wind_dir_deg": 287,
+   "wind_kmh": 7,
+   "wind_dir_deg": 282,
    "wind_from": "ONO",
    "precip_mm": 0,
    "eta_min": null
@@ -214,8 +214,8 @@
    "code": "mar",
    "distance_km": 16.8,
    "direction": "OSO",
-   "wind_kmh": 8,
-   "wind_dir_deg": 286,
+   "wind_kmh": 7,
+   "wind_dir_deg": 283,
    "wind_from": "ONO",
    "precip_mm": 0,
    "eta_min": null
@@ -225,9 +225,9 @@
    "code": "chp",
    "distance_km": 32.4,
    "direction": "E",
-   "wind_kmh": 3,
-   "wind_dir_deg": 236,
-   "wind_from": "SO",
+   "wind_kmh": 4,
+   "wind_dir_deg": 253,
+   "wind_from": "OSO",
    "precip_mm": 0,
    "eta_min": null
   }
@@ -254,7 +254,7 @@
   "event_open": false
  },
  "pipeline": {
-  "last_run_local": "02:08",
+  "last_run_local": "02:37",
   "ok_24h": 828,
   "total_24h": 1036
  },
